@@ -3,7 +3,6 @@ import FolderCard from "@/components/shared/folder-card";
 import GridComponent from "@/components/shared/grid";
 import ListComponent from "@/components/shared/list";
 import FolderButton from "@/components/shared/newFolder-button";
-import { Link } from "react-router-dom";
 
 const DashboardPage = () => {
   const pinnedList = [1, 2, 3];
@@ -25,9 +24,7 @@ const DashboardPage = () => {
       </div>
       <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
         {pinnedList.map((item) => (
-          <Link to="/folder" key={item}>
-            <FolderCard />
-          </Link>
+          <FolderCard key={item} />
         ))}
       </div>
       <div className="">
