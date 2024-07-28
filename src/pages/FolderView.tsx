@@ -33,7 +33,7 @@ const FolderView = () => {
             <div className="w-40 h-40 bg-gray-300 rounded-sm">
               {item.type === "png" || item.type === "jpg" ? (
                 <img
-                  src={item.img}
+                  src={item.img.toString()}
                   alt={item.name}
                   className="rounded-sm object-cover w-full h-full"
                 />
