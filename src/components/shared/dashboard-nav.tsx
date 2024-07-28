@@ -54,7 +54,9 @@ export default function DashboardNav({
                       if (setOpen) setOpen(false);
                     }}
                   >
-                    <Icon className={`ml-2.5 size-5 fill-inherit`} />
+                    <Icon
+                      className={`ml-2.5 size-5 fill-current active:fill-inherit focus:fill-current`}
+                    />
 
                     {isMobileNav || (!isMinimized && !isMobileNav) ? (
                       <span className="mr-2 truncate">{item.title}</span>
