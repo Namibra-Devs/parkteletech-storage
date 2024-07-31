@@ -1,25 +1,43 @@
+import { Suspense, lazy } from "react";
+import { Navigate, Outlet, useRoutes } from "react-router-dom";
+import { useAuth } from "@/hooks/context/AuthContext";
+
 import DashboardPage from "@/pages/DashboardPage";
 import FolderView from "@/pages/FolderView";
 import NotFound from "@/pages/NotFound";
 import SignInPage from "@/pages/SignInPage";
 import Trash from "@/pages/Trash";
-import { Suspense, lazy } from "react";
-import { Navigate, Outlet, useRoutes } from "react-router-dom";
 
 const DashboardLayout = lazy(
   () => import("@/components/layout/dashboard-layout")
 );
 
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 export default function AppRouter() {
+  const { isAuthenticated } = useAuth();
+
   const dashboardRoutes = [
     {
       path: "/",
       element: (
-        <DashboardLayout>
-          <Suspense>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Outlet />
+            </Suspense>
+          </DashboardLayout>
+        </ProtectedRoute>
       ),
       children: [
         {
@@ -41,8 +59,7 @@ export default function AppRouter() {
   const publicRoutes = [
     {
       path: "/login",
-      element: <SignInPage />,
-      index: true,
+      element: isAuthenticated ? <Navigate to="/" replace /> : <SignInPage />,
     },
     {
       path: "/404",
