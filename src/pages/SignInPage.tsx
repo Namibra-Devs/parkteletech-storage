@@ -1,48 +1,34 @@
 // src/pages/SignInPage.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "@/hooks/context/AuthContext";
+import { useApi } from "@/hooks/context/GlobalContext";
 
 const SignInPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const api = useApi();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const response = await axios.post(
-        "https://parkteletechafrica.com/api/admin/login",
-        { email, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const { staff, token } = await api.loginStaff(email, password);
+      // Store the token in localStorage or a secure storage method
+      localStorage.setItem("authToken", token);
+      // You might want to store some staff information as well
+      localStorage.setItem("staffId", staff.id.toString());
+      localStorage.setItem("staffName", staff.fullname);
 
-      if (response.status === 200) {
-        const { user, token } = response.data;
-        login(token, user);
-        toast.success("Login successful");
-        setTimeout(() => navigate("/"), 2000);
-      }
+      toast.success("Login successful!");
+      // Redirect to the dashboard or home page after successful login
+      navigate("/");
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const message =
-          error.response?.data?.message ||
-          "Login failed. Please check your credentials.";
-        toast.error(message);
-      } else {
-        toast.error("An unexpected error occurred. Please try again.");
-      }
+      console.error("Login failed:", error);
+      toast.error("Login failed. Please check your credentials and try again.");
     } finally {
       setLoading(false);
     }
@@ -69,6 +55,7 @@ const SignInPage = () => {
                 className="border-2 border-gray-300 w-3/4 h-10 rounded-md px-2"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
               <input
                 type="password"
@@ -76,6 +63,7 @@ const SignInPage = () => {
                 className="border-2 border-gray-300 w-3/4 h-10 rounded-md px-2 mt-4"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <button
                 type="submit"
