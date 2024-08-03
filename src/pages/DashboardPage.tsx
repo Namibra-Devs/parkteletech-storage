@@ -3,23 +3,21 @@ import FolderCard from "@/components/shared/folder-card";
 import { FolderModal } from "@/components/shared/folder-modal";
 import GridComponent from "@/components/shared/grid";
 import ListComponent from "@/components/shared/list";
+import { useApi } from "@/hooks/context/GlobalContext";
+import { ToastContainer } from "react-toastify";
 
 const DashboardPage = () => {
-  const pinnedList = [1, 2, 3];
-  const allFolders = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-  // const folder = {
-  //   id: 1,
-  //   name: "Folder1",
-  //   fileCount: 5,
-  // };
+  const { folders } = useApi();
+  const homeFolders = folders.filter((folder) => folder.parent_id === null);
+  const pinnedFolders = homeFolders.slice(0, 3);
 
-  // const handleRenameFolder = (id: number, newName: string) => {
-  //   console.log("Rename folder:", id, newName);
-  // };
+  const handleRenameFolder = (id: number, newName: string) => {
+    console.log("Rename folder:", id, newName);
+  };
 
-  // const handleDeleteFolder = (id: number) => {
-  //   console.log("Delete folder:", id);
-  // };
+  const handleDeleteFolder = (id: number) => {
+    console.log("Delete folder:", id);
+  };
 
   return (
     <div className="p-4 w-full h-full">
@@ -31,34 +29,47 @@ const DashboardPage = () => {
           </div>
           <FileUpload />
           <FolderModal />
+          <ToastContainer />
         </div>
       </div>
       <div className="mt-10">
         <p className="font-semibold">Pinned Folders</p>
       </div>
       <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
-        {pinnedList.map((item) => (
-          <div className="" key={item}>
-            <FolderCard
-            // folder={folder}
-            // onRename={handleRenameFolder}
-            // onDelete={handleDeleteFolder}
-            />
-          </div>
-        ))}
+        {pinnedFolders ? (
+          pinnedFolders.map((folder) => (
+            <div className="" key={folder.id}>
+              <FolderCard
+                folder={folder}
+                onDelete={handleDeleteFolder}
+                onRename={handleRenameFolder}
+                fileCount={0}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="text-center">No pinned folders</div>
+        )}
       </div>
       <div className="">
         <p className="font-semibold">All Folders</p>
         <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
-          {allFolders.map((item) => (
-            <div className="" key={item}>
-              <FolderCard
-              // folder={folder}
-              // onRename={handleRenameFolder}
-              // onDelete={handleDeleteFolder}
-              />
+          {homeFolders ? (
+            homeFolders.map((folder) => (
+              <div className="" key={folder.id}>
+                <FolderCard
+                  folder={folder}
+                  onDelete={handleDeleteFolder}
+                  onRename={handleRenameFolder}
+                  fileCount={0}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="text-center">
+              No folders found! Create a new folder
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

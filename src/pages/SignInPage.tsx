@@ -3,26 +3,33 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useApi } from "@/hooks/context/GlobalContext";
 
 const SignInPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const api = useApi();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { staff, token } = await api.loginStaff(email, password);
-      // Store the token in localStorage or a secure storage method
-      localStorage.setItem("authToken", token);
-      // You might want to store some staff information as well
-      localStorage.setItem("staffId", staff.id.toString());
-      localStorage.setItem("staffName", staff.fullname);
+      const response = await fetch(
+        "https://www.parkteletechafrica.com/api/admin/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+      const data = await response.json();
 
+      const user = data.user;
+
+      localStorage.setItem("staff", JSON.stringify(user));
+      localStorage.setItem("userId", user.id);
       toast.success("Login successful!");
       // Redirect to the dashboard or home page after successful login
       navigate("/");

@@ -91,7 +91,7 @@ const DashboardLayout = lazy(
 );
 
 export default function AppRouter() {
-  const staffId = localStorage.getItem("staffId");
+  const staffId = localStorage.getItem("userId");
 
   const dashboardRoutes = [
     {
@@ -115,7 +115,7 @@ export default function AppRouter() {
           element: <Trash />,
         },
         {
-          path: "folder",
+          path: "folder/:id",
           element: <FolderView />,
         },
       ],
