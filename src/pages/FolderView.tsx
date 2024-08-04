@@ -266,7 +266,7 @@ const FolderView: React.FC = () => {
         ) : (
           <div className="text-gray-400 text-center col-span-4 flex flex-col">
             <p className="">No folders found! Create One</p>
-            <span className="text-9xl mt-10">😥</span>
+            <span className="text-9xl mt-10 animate-pulse">😥</span>
           </div>
         )}
       </div>
