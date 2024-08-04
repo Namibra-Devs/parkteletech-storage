@@ -12,6 +12,39 @@ const SignInPage = () => {
   const [loading, setLoading] = useState(false);
   const { refreshFileData, refreshFolderData } = useApi();
 
+  // const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch(
+  //       "https://www.parkteletechafrica.com/api/admin/login",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ email, password }),
+  //       }
+  //     );
+  //     const data = await response.json();
+
+  //     const user = data.user;
+
+  //     localStorage.setItem("staff", JSON.stringify(user));
+  //     localStorage.setItem("userId", user.id);
+  //     toast.success("Login successful!");
+  //     // Redirect to the dashboard or home page after successful login
+  //     navigate("/");
+  //     refreshFileData();
+  //     refreshFolderData();
+  //   } catch (error) {
+  //     console.error("Login failed:", error);
+  //     toast.error("Login failed. Please check your credentials and try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -33,10 +66,15 @@ const SignInPage = () => {
       localStorage.setItem("staff", JSON.stringify(user));
       localStorage.setItem("userId", user.id);
       toast.success("Login successful!");
-      // Redirect to the dashboard or home page after successful login
-      navigate("/");
-      refreshFileData();
-      refreshFolderData();
+
+      // Refresh data
+      await refreshFileData();
+      await refreshFolderData();
+
+      // Wait for 3 seconds before navigating
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
     } catch (error) {
       console.error("Login failed:", error);
       toast.error("Login failed. Please check your credentials and try again.");
@@ -44,10 +82,9 @@ const SignInPage = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="bg-[#F7F7F7] w-screen h-screen">
-      <ToastContainer />
+      <ToastContainer position="top-center" />
       <div className="border-b-2 border-white w-full h-16 items-center flex">
         <p className="text-sm lg:text-xl ml-10 text-blue-600 font-bold">
           Park Teletech

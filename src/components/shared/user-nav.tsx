@@ -10,6 +10,8 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 type User = {
   email: string;
@@ -22,13 +24,20 @@ export default function UserNav() {
     id: "",
   };
 
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem("userId");
     localStorage.removeItem("staff");
-    window.location.href = "/login";
+    toast.success("Logout successful!");
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 3000);
   };
   return (
     <DropdownMenu>
+      <ToastContainer position="top-center" />
       <DropdownMenuTrigger asChild>
         <Avatar className="h-14 w-14 rounded-full cursor-pointer">
           <AvatarImage
