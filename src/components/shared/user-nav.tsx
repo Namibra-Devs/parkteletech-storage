@@ -11,11 +11,26 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
+type User = {
+  email: string;
+  id: string;
+};
+
 export default function UserNav() {
+  const user: User = JSON.parse(localStorage.getItem("staff") ?? "") || {
+    email: "",
+    id: "",
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("staff");
+    window.location.href = "/login";
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-14 w-14 rounded-full">
+        <Avatar className="h-14 w-14 rounded-full cursor-pointer">
           <AvatarImage
             src={
               "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001882.png"
@@ -30,25 +45,13 @@ export default function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-xs leading-none text-muted-foreground">
-              {"example@email.com"}
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Account
-            <DropdownMenuShortcut>⇧⌘A</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Settings
-            <DropdownMenuShortcut>⇧⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => console.log("logout")}>
+          <DropdownMenuItem onClick={handleLogout}>
             Logout
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
