@@ -35,7 +35,7 @@ export default function Sidebar({ className }: SidebarProps) {
         )}
       >
         {!isMinimized && (
-          <h1 className="text-2xl font-bold text-blue-900 text-center">
+          <h1 className="text-2xl font-bold text-blue-600 text-center">
             Park Teletech Storage
           </h1>
         )}
