@@ -147,10 +147,10 @@ import FileUpload from "@/components/shared/fileUpload-button";
 import FolderCard from "@/components/shared/folder-card";
 import GridComponent from "@/components/shared/grid";
 import ListComponent from "@/components/shared/list";
-import FolderButton from "@/components/shared/newFolder-button";
 import { FileIcon, Music4Icon } from "lucide-react";
 import { useApi } from "@/hooks/context/GlobalContext";
 import { useEffect, useState } from "react";
+import { FolderModal } from "@/components/shared/folder-modal";
 
 const FolderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -220,7 +220,7 @@ const FolderView: React.FC = () => {
             <GridComponent />
           </div>
           <FileUpload />
-          <FolderButton />
+          <FolderModal parent_Id={id} />
         </div>
       </div>
 
