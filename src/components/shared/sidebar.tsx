@@ -3,7 +3,7 @@ import DashboardNav from "@/components/shared/dashboard-nav";
 import { navItems } from "@/constants";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { cn } from "@/lib/utils";
-import { ChevronsLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 
 type SidebarProps = {
@@ -35,11 +35,11 @@ export default function Sidebar({ className }: SidebarProps) {
         )}
       >
         {!isMinimized && (
-          <h1 className="text-2xl font-bold text-blue-900 text-center">
+          <h1 className="text-2xl font-bold text-blue-600 text-center">
             Park Teletech Storage
           </h1>
         )}
-        <ChevronsLeft
+        <ChevronLeft
           className={cn(
             "size-8 cursor-pointer rounded-full border bg-background text-foreground",
             isMinimized && "rotate-180"
