@@ -10,7 +10,7 @@ export default function FileUpload() {
         <CloudUploadIcon className="mr-2 h-5 w-5" />
         <p className="hidden lg:block">Upload File</p>
       </label>
-      <input id="file-upload" type="file" className="sr-only" />
+      <input id="file-upload" type="file" multiple className="sr-only" />
     </div>
   );
 }

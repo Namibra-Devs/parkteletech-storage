@@ -41,30 +41,47 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [files, setFiles] = useState<File[]>([]);
 
   const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+
+  console.log(token)
 
   const fetchFolders = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/folders?user_id=${userId}`
+        `https://www.parkteletechafrica.com/api/folders?user_id=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        }
       );
       const data = await response.json();
-      setFolders(data.data);
+      setFolders(data);
     } catch (error) {
       console.log(error);
     }
-  }, [userId]);
+  }, [userId, token]);
 
   const fetchFiles = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/files?user_id=${userId}`
+        `https://www.parkteletechafrica.com/api/files?user_id=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        }
       );
       const data = await response.json();
-      setFiles(data.files);
+      setFiles(data);
     } catch (error) {
       console.log(error);
     }
-  }, [userId]);
+  }, [userId, token]);
 
   useEffect(() => {
     fetchFolders();

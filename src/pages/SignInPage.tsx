@@ -50,7 +50,7 @@ const SignInPage = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://www.parkteletechafrica.com/api/admin/login",
+        "https://www.parkteletechafrica.com/api/login",
         {
           method: "POST",
           headers: {
@@ -62,9 +62,11 @@ const SignInPage = () => {
       const data = await response.json();
 
       const user = data.user;
+      const token = data.token;
 
       localStorage.setItem("staff", JSON.stringify(user));
-      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userId", JSON.stringify(user.id));
+      localStorage.setItem("token", token)
       toast.success("Login successful!");
 
       // Refresh data

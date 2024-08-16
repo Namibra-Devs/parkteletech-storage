@@ -125,6 +125,8 @@ export function FolderModal({ parent_Id }: FolderModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { refreshFolderData } = useApi();
 
+  const token = localStorage.getItem("token");
+
   const formData = {
     name,
     user_id: localStorage.getItem("userId"),
@@ -141,6 +143,8 @@ export function FolderModal({ parent_Id }: FolderModalProps) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+
           },
           body: JSON.stringify(formData),
         }
