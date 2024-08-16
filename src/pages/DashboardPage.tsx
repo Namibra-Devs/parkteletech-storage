@@ -105,7 +105,6 @@ const DashboardPage = () => {
   const homeFolders = folders.filter((folder) => folder.parent_id === null);
   const pinnedFolders = homeFolders.slice(0, 3);
 
-  console.log(folders);
   return (
     <div className="p-4 w-full h-full">
       <ToastContainer position="top-center" />

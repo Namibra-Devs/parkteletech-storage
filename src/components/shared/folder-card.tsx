@@ -209,6 +209,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const token = localStorage.getItem("token");
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
@@ -230,6 +231,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
           body: JSON.stringify({ name: newName }),
         }
@@ -249,13 +251,20 @@ const FolderCard: React.FC<FolderCardProps> = ({
 
   const handleDeleteFolder = async () => {
     try {
+      const formData = {
+        ids: [id]
+      }
+
+      const userId = localStorage.getItem("userId");
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/folders/${id}`,
+        `https://www.parkteletechafrica.com/api/delete?user_id=${userId}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
+          body: JSON.stringify(formData),
         }
       );
       if (!response.ok) {
@@ -405,4 +414,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onDelete }) => {
   );
 };
 
-export default FolderCard;
+
+
+export default FolderCard
