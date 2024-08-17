@@ -185,7 +185,7 @@ import { ToastContainer } from "react-toastify";
 const FolderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const folderId = id ? parseInt(id) : 0; // Use 0 for root folder
-  const { folders, files, refreshFolderData, refreshFileData } = useApi();
+  const { folders, files, refreshFolderData, refreshFileData, refreshTrashFolderData } = useApi();
   const [breadcrumbs, setBreadcrumbs] = useState<
     { id: number; name: string }[]
   >([]);
@@ -282,6 +282,7 @@ const FolderView: React.FC = () => {
               name={folder.name}
               fileCount={folder.fileCount || 0}
               refreshFolderData={refreshFolderData}
+              refreshTrashFolderData={refreshTrashFolderData}
             />
           ))
         ) : (

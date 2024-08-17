@@ -88,7 +88,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
         }
       );
       const data = await response.json()
-      setFiles(data.data);
+      setFiles(data);
     } catch (error) {
       console.log(error);
     }
@@ -129,7 +129,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
         }
       );
       const data = await response.json();
-      setTrashFiles(data);
+      setTrashFiles(data.data);
     } catch (error) {
       console.log(error);
     }
