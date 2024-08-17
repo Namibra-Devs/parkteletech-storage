@@ -101,7 +101,7 @@ import { useApi } from "@/hooks/context/GlobalContext";
 import { ToastContainer } from "react-toastify";
 
 const DashboardPage = () => {
-  const { folders, refreshFolderData } = useApi();
+  const { folders, refreshFolderData, refreshTrashFolderData } = useApi();
   const homeFolders = folders.filter((folder) => folder.parent_id === null);
   const pinnedFolders = homeFolders.slice(0, 3);
 
@@ -130,6 +130,7 @@ const DashboardPage = () => {
                 name={folder.name}
                 fileCount={0}
                 refreshFolderData={refreshFolderData}
+                refreshTrashFolderData={refreshTrashFolderData}
               />
             </div>
           ))
@@ -148,6 +149,7 @@ const DashboardPage = () => {
                   name={folder.name}
                   fileCount={0}
                   refreshFolderData={refreshFolderData}
+                  refreshTrashFolderData={refreshTrashFolderData}
                 />
               </div>
             ))

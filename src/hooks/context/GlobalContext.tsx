@@ -87,8 +87,8 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       );
-      const data = await response.json();
-      setFiles(data);
+      const data = await response.json()
+      setFiles(data.data);
     } catch (error) {
       console.log(error);
     }
@@ -110,7 +110,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
 
       const message = data.message;
       setTrashFolderMessage(message);
-      setTrashFolders(data);
+      setTrashFolders(data.data);
     } catch (error) {
       console.log(error);
     }

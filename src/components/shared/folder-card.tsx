@@ -198,6 +198,7 @@ interface FolderCardProps {
   name: string;
   fileCount: number;
   refreshFolderData: () => Promise<void>;
+  refreshTrashFolderData: () => Promise<void>;
 }
 
 const FolderCard: React.FC<FolderCardProps> = ({
@@ -205,6 +206,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
   name,
   fileCount,
   refreshFolderData,
+  refreshTrashFolderData,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
@@ -240,6 +242,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
         throw new Error("Failed to rename folder");
       }
       await refreshFolderData();
+      await refreshTrashFolderData();
       toast.success("Folder renamed successfully!");
       console.log("Rename folder:", id, newName);
       setIsRenameModalOpen(false);
