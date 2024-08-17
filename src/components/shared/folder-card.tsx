@@ -251,13 +251,14 @@ const FolderCard: React.FC<FolderCardProps> = ({
 
   const handleDeleteFolder = async () => {
     try {
+      const userId = localStorage.getItem("userId");
       const formData = {
-        ids: [id]
+        ids: [id],
+        user_id: userId,
       }
 
-      const userId = localStorage.getItem("userId");
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/delete?user_id=${userId}`,
+        `https://www.parkteletechafrica.com/api/folders/delete`,
         {
           method: "DELETE",
           headers: {
