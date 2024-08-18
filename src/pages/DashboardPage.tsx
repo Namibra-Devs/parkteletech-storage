@@ -92,22 +92,24 @@
 
 // export default DashboardPage;
 
+import FileCard from "@/components/shared/file-card";
 import FileUpload from "@/components/shared/fileUpload-button";
 import FolderCard from "@/components/shared/folder-card";
 import { FolderModal } from "@/components/shared/folder-modal";
 import GridComponent from "@/components/shared/grid";
 import ListComponent from "@/components/shared/list";
 import { useApi } from "@/hooks/context/GlobalContext";
-import { FileIcon, Music4Icon } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 
 const DashboardPage = () => {
-  const { folders, refreshFolderData, refreshTrashFolderData, files } = useApi();
+  const { folders, refreshFolderData, refreshTrashFolderData, files, refreshFileData, refreshTrashFileData } = useApi();
+
   const homeFolders = folders.filter((folder) => folder.parent_id === null);
+  const homeFiles = files.filter((file) => file.folder_id === null);
   const pinnedFolders = homeFolders.slice(0, 3);
 
   return (
-    <div className="p-4 w-full h-full">
+    <div className="p-4 mb-5 w-full h-full">
       <ToastContainer position="top-center" />
       <div className="w-full relative">
         <div className="flex gap-4 items-center right-0 absolute">
@@ -115,7 +117,10 @@ const DashboardPage = () => {
           <div className="hidden lg:block">
             <GridComponent />
           </div>
-          <FileUpload />
+          <FileUpload
+            folderId={null}
+            refreshFileData={refreshFileData}
+          />
           <FolderModal />
         </div>
       </div>
@@ -167,28 +172,15 @@ const DashboardPage = () => {
           <p className="font-semibold">All Files</p>
         </div>
         <div className="grid grid-cols-2 lg:grid lg:grid-cols-4 gap-4 items-center">
-         {files.length > 0 ? (files.map((file) => (
-          <div key={file.id} className="flex flex-col">
-            <div className="w-40 h-40 bg-gray-300 rounded-sm">
-              {file.name.endsWith(".png") || file.name.endsWith(".jpg") ? (
-                <img
-                  src={`https://www.parkteletechafrica.com/api/files/${file.id}`}
-                  alt={file.name}
-                  className="rounded-sm object-cover w-full h-full"
-                />
-              ) : (
-                <i className="flex justify-center mt-16">
-                  {file.name.endsWith(".mp3") ? <Music4Icon /> : <FileIcon />}
-                </i>
-              )}
-            </div>
-            <div className="mt-2">
-              <p className="text-sm font-semibold">{file.name}</p>
-              <p className="text-xs font-medium text-gray-400">
-                {file.size ? `${file.size} bytes` : "Unknown size"}
-              </p>
-            </div>
-          </div>
+         {homeFiles.length > 0 ? (homeFiles.map((file) => (
+          <FileCard
+            key={file.id}
+            id={file.id}
+            name={file.name}
+            size={file.size}
+            refreshFileData={refreshFileData}
+            refreshTrashFileData={refreshTrashFileData}
+          />
         ))) : (
           <div className="text-center">No files found! Upload a file</div>
         )}

@@ -23,6 +23,7 @@ interface File {
   size: number | null;
   user_id: number;
   folder_id: number | null;
+  path: string;
 }
 
 
@@ -42,6 +43,8 @@ interface GlobalContextType {
   refreshTrashFileData: () => Promise<void>;
   trashFolderMessage: string;
   setTrashFolderMessage: Dispatch<SetStateAction<string>>;
+  trashFileMessage: string;
+  setTrashFileMessage: Dispatch<SetStateAction<string>>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -52,6 +55,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [trashFolders, setTrashFolders] = useState<Folder[]>([]);
   const [trashFiles, setTrashFiles] = useState<File[]>([]);
   const [trashFolderMessage, setTrashFolderMessage] = useState("");
+  const [trashFileMessage, setTrashFileMessage] = useState("");
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -119,7 +123,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const fetchTrashFiles = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/files/trash}`,
+        `https://www.parkteletechafrica.com/api/files/trash?user_id=${userId}`,
         {
           method: "GET",
           headers: {
@@ -129,11 +133,13 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
         }
       );
       const data = await response.json();
+      setTrashFileMessage(data.message);
       setTrashFiles(data.data);
+
     } catch (error) {
       console.log(error);
     }
-  }, [token]);
+  }, [token, userId]);
 
   useEffect(() => {
     fetchFolders();
@@ -175,6 +181,8 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
         refreshTrashFileData,
         trashFolderMessage,
         setTrashFolderMessage,
+        trashFileMessage,
+        setTrashFileMessage,
       }}
     >
       {children}

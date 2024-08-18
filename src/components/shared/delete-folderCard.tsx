@@ -45,7 +45,6 @@ interface DeleteFolderCardProps {
           throw new Error("Failed to delete folder");
         }
         toast.success("Folder deleted successfully!");
-        console.log("Delete folder:", id);
         setIsDeleteModalOpen(false);
         await refreshTrashFolderData();
       } catch (error) {

@@ -176,16 +176,16 @@ import FileUpload from "@/components/shared/fileUpload-button";
 import FolderCard from "@/components/shared/folder-card";
 import GridComponent from "@/components/shared/grid";
 import ListComponent from "@/components/shared/list";
-import { FileIcon, Music4Icon } from "lucide-react";
 import { useApi } from "@/hooks/context/GlobalContext";
 import { useEffect, useState } from "react";
 import { FolderModal } from "@/components/shared/folder-modal";
 import { ToastContainer } from "react-toastify";
+import FileCard from "@/components/shared/file-card";
 
 const FolderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const folderId = id ? parseInt(id) : 0; // Use 0 for root folder
-  const { folders, files, refreshFolderData, refreshFileData, refreshTrashFolderData } = useApi();
+  const { folders, files, refreshFolderData, refreshFileData, refreshTrashFolderData, refreshTrashFileData } = useApi();
   const [breadcrumbs, setBreadcrumbs] = useState<
     { id: number; name: string }[]
   >([]);
@@ -240,7 +240,10 @@ const FolderView: React.FC = () => {
           <div className="hidden lg:block">
             <GridComponent />
           </div>
-          <FileUpload />
+          <FileUpload
+            folderId={folderId}
+            refreshFileData={refreshFileData}
+          />
           <FolderModal parent_Id={id} />
         </div>
       </div>
@@ -294,29 +297,18 @@ const FolderView: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid lg:grid-cols-4 gap-4 items-center">
-        {currentFiles.map((file) => (
-          <div key={file.id} className="flex flex-col">
-            <div className="w-40 h-40 bg-gray-300 rounded-sm">
-              {file.name.endsWith(".png") || file.name.endsWith(".jpg") ? (
-                <img
-                  src={`https://www.parkteletechafrica.com/api/files/${file.id}`}
-                  alt={file.name}
-                  className="rounded-sm object-cover w-full h-full"
-                />
-              ) : (
-                <i className="flex justify-center mt-16">
-                  {file.name.endsWith(".mp3") ? <Music4Icon /> : <FileIcon />}
-                </i>
-              )}
-            </div>
-            <div className="mt-2">
-              <p className="text-sm font-semibold">{file.name}</p>
-              <p className="text-xs font-medium text-gray-400">
-                {file.size ? `${file.size} bytes` : "Unknown size"}
-              </p>
-            </div>
-          </div>
-        ))}
+         {currentFiles.length > 0 ? (currentFiles.map((file) => (
+          <FileCard
+            key={file.id}
+            id={file.id}
+            name={file.name}
+            size={file.size}
+            refreshFileData={refreshFileData}
+            refreshTrashFileData={refreshTrashFileData}
+          />
+        ))) : (
+          <div className="text-center">No files found! Upload a file</div>
+        )}
       </div>
     </div>
   );

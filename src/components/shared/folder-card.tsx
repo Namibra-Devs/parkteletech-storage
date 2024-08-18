@@ -275,9 +275,9 @@ const FolderCard: React.FC<FolderCardProps> = ({
         throw new Error("Failed to delete folder");
       }
       toast.success("Folder deleted successfully!");
-      console.log("Delete folder:", id);
       setIsDeleteModalOpen(false);
       await refreshFolderData();
+      await refreshTrashFolderData();
     } catch (error) {
       toast.error("Failed to delete folder");
       console.error("Error deleting folder:", error);
