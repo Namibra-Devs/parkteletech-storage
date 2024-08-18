@@ -47,7 +47,7 @@ const Trash = () => {
             ))
           ) : (
             <div className="text-center w-full justify-center flex">
-              Trash is empty
+              File Trash is empty
             </div>
           )}
           </div>
