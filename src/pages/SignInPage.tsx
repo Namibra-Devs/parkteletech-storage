@@ -1,9 +1,11 @@
-// src/pages/SignInPage.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useApi } from "@/hooks/context/GlobalContext";
+import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, TOKEN_EXPIRATION_KEY, USER_KEY } from "@/constants";
+
+
 
 const SignInPage = () => {
   const navigate = useNavigate();
@@ -12,45 +14,24 @@ const SignInPage = () => {
   const [loading, setLoading] = useState(false);
   const { refreshFileData, refreshFolderData } = useApi();
 
-  // const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   try {
-  //     const response = await fetch(
-  //       "https://www.parkteletechafrica.com/api/admin/login",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({ email, password }),
-  //       }
-  //     );
-  //     const data = await response.json();
+ 
 
-  //     const user = data.user;
-
-  //     localStorage.setItem("staff", JSON.stringify(user));
-  //     localStorage.setItem("userId", user.id);
-  //     toast.success("Login successful!");
-  //     // Redirect to the dashboard or home page after successful login
-  //     navigate("/");
-  //     refreshFileData();
-  //     refreshFolderData();
-  //   } catch (error) {
-  //     console.error("Login failed:", error);
-  //     toast.error("Login failed. Please check your credentials and try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const setTokensWithExpiration = (accessToken: string, refreshToken: string, user: string) => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.setItem(USER_KEY, user);
+    
+    // Set expiration time to 24 hours from now
+    const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
+    localStorage.setItem(TOKEN_EXPIRATION_KEY, expirationTime.toString());
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
       const response = await fetch(
-        "https://www.parkteletechafrica.com/api/login",
+        "https://parkteletech-auth.onrender.com/api/v1/auth/authenticate",
         {
           method: "POST",
           headers: {
@@ -60,13 +41,26 @@ const SignInPage = () => {
         }
       );
       const data = await response.json();
+      const accessToken = data.data.accessToken;
+      const refreshToken = data.data.refreshToken;
+      
+      // Save tokens to local storage with expiration
+      
+      const user = await fetch(
+        "https://parkteletech-auth.onrender.com/api/v1/auth/me",
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          }
+        }
+      );
+      const userData = await user.json();
+      const storeUser = JSON.stringify(userData.data);
+      setTokensWithExpiration(accessToken, refreshToken, storeUser);
 
-      const user = data.user;
-      const token = data.token;
 
-      localStorage.setItem("staff", JSON.stringify(user));
-      localStorage.setItem("userId", JSON.stringify(user.id));
-      localStorage.setItem("token", token)
       toast.success("Login successful!");
 
       // Refresh data
@@ -84,6 +78,7 @@ const SignInPage = () => {
       setLoading(false);
     }
   };
+
   return (
     <div className="bg-[#F7F7F7] w-screen h-screen">
       <ToastContainer position="top-center" />

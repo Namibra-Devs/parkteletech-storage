@@ -1,3 +1,4 @@
+import { ACCESS_TOKEN_KEY, USER_KEY } from "@/constants";
 import {
   createContext,
   useContext,
@@ -10,20 +11,23 @@ import {
 } from "react";
 
 interface Folder {
-  id: number;
-  name: string;
-  fileCount: number | null;
-  user_id: number;
-  parent_id: number | null;
+  id?: number;
+  name?: string;
+  fileCount?: number;
+  userId?: number;
+  parentFolderId?: number;
 }
 
 interface File {
-  id: number;
-  name: string;
-  size: number | null;
-  user_id: number;
-  folder_id: number | null;
-  path: string;
+  id?: number;
+  originalFileName?: string;
+  size?: number;
+  type?: string;
+  url?: string;
+  secureUrl?: string;
+  publicId?: string;
+  userId?: number;
+  folderId?: number | null;
 }
 
 
@@ -57,23 +61,25 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [trashFolderMessage, setTrashFolderMessage] = useState("");
   const [trashFileMessage, setTrashFileMessage] = useState("");
 
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem(USER_KEY) || "{}");
+  const userId = user.id;
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  
 
   const fetchFolders = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/folders?user_id=${userId}`,
+        `https://parkteletech-storage-backend.onrender.com/api/v1/folders/user/${userId}`,
         {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-          }
+          },
         }
       );
       const data = await response.json();
-      setFolders(data);
+      setFolders(data.data);
     } catch (error) {
       console.log(error);
     }
@@ -82,13 +88,13 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const fetchFiles = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/files?user_id=${userId}`,
+        `https://parkteletech-storage-backend.onrender.com/api/v1/files/${userId}`,
         {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-          }
+          },
         }
       );
       const data = await response.json()
@@ -123,13 +129,13 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const fetchTrashFiles = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/files/trash?user_id=${userId}`,
+        `https://parkteletech-storage-backend.onrender.com/api/v1/files/soft/${userId}`,
         {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-          }
+          },
         }
       );
       const data = await response.json();
