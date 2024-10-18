@@ -12,6 +12,7 @@ import {
 } from "../ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import { USER_KEY,ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, TOKEN_EXPIRATION_KEY } from "@/constants";
 
 type User = {
   email: string;
@@ -19,7 +20,7 @@ type User = {
 };
 
 export default function UserNav() {
-  const user: User = JSON.parse(localStorage.getItem("staff") ?? "") || {
+  const user: User = JSON.parse(localStorage.getItem("user") ?? "") || {
     email: "",
     id: "",
   };
@@ -27,13 +28,16 @@ export default function UserNav() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("staff");
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRATION_KEY);
+
     toast.success("Logout successful!");
 
     setTimeout(() => {
       navigate("/login");
-    }, 3000);
+    }, 2000);
   };
   return (
     <DropdownMenu>

@@ -116,7 +116,7 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { ACCESS_TOKEN_KEY } from "@/constants";
 
-export function FolderModal({ parentFolderId }: { parentFolderId?: number }) {
+export function UpdateFolderModal({ folderId }: { folderId: number }) {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -126,7 +126,6 @@ export function FolderModal({ parentFolderId }: { parentFolderId?: number }) {
 
   const formData = {
     name,
-    parentFolderId: parentFolderId ? parentFolderId : null,
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,7 +133,7 @@ export function FolderModal({ parentFolderId }: { parentFolderId?: number }) {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/folders`,
+        `https://parkteletech-storage-backend.onrender.com/api/v1/folders/${folderId}`,
         {
           method: "POST",
           headers: {

@@ -4,10 +4,8 @@ import {
   useContext,
   ReactNode,
   useState,
-  Dispatch,
-  SetStateAction,
-  useEffect,
   useCallback,
+  useEffect,
 } from "react";
 
 interface Folder {
@@ -16,6 +14,11 @@ interface Folder {
   fileCount?: number;
   userId?: number;
   parentFolderId?: number;
+  files?: File[];
+  childFolders?: Folder[];
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: null;
 }
 
 interface File {
@@ -28,169 +31,151 @@ interface File {
   publicId?: string;
   userId?: number;
   folderId?: number | null;
+  resourceType?: string;
+  format?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: null;
 }
 
-
+interface ApiResponse<T> {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: T;
+  error: null | string;
+}
 
 interface GlobalContextType {
   folders: Folder[];
   files: File[];
   trashFolders: Folder[];
   trashFiles: File[];
-  setTrashFolders: Dispatch<SetStateAction<Folder[]>>;
-  setTrashFiles: Dispatch<SetStateAction<File[]>>;
-  setFolders: Dispatch<SetStateAction<Folder[]>>;
-  setFiles: Dispatch<SetStateAction<File[]>>;
-  refreshFolderData: () => Promise<void>;
-  refreshFileData: () => Promise<void>;
-  refreshTrashFolderData: () => Promise<void>;
-  refreshTrashFileData: () => Promise<void>;
+  setTrashFolders: (folders: Folder[]) => void;
+  setTrashFiles: (files: File[]) => void;
+  setFolders: (folders: Folder[]) => void;
+  setFiles: (files: File[]) => void;
+  refreshData: () => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
   trashFolderMessage: string;
-  setTrashFolderMessage: Dispatch<SetStateAction<string>>;
+  setTrashFolderMessage: (message: string) => void;
   trashFileMessage: string;
-  setTrashFileMessage: Dispatch<SetStateAction<string>>;
+  setTrashFileMessage: (message: string) => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
+
+const BASE_URL = "https://parkteletech-storage-backend.onrender.com/api/v1";
 
 export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [trashFolders, setTrashFolders] = useState<Folder[]>([]);
   const [trashFiles, setTrashFiles] = useState<File[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [trashFolderMessage, setTrashFolderMessage] = useState("");
   const [trashFileMessage, setTrashFileMessage] = useState("");
 
   const user = JSON.parse(localStorage.getItem(USER_KEY) || "{}");
   const userId = user.id;
   const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-  
 
-  const fetchFolders = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/folders/user/${userId}`,
-        {
-          method: "GET",
+  const fetchData = useCallback(
+    async <T,>(endpoint: string): Promise<T | null> => {
+      if (!userId || !token) {
+        setError("User not authenticated");
+        return null;
+      }
+
+      try {
+        const response = await fetch(`${BASE_URL}${endpoint}`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
-        }
-      );
-      const data = await response.json();
-      setFolders(data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [userId, token]);
+        });
 
-  const fetchFiles = useCallback(async () => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result: ApiResponse<T> = await response.json();
+
+        if (result.status !== "success") {
+          throw new Error(result.message || "API request failed");
+        }
+
+        return result.data;
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "An error occurred");
+        return null;
+      }
+    },
+    [userId, token]
+  );
+
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/files/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+      // Fetch folders data
+      const folderData = await fetchData<Folder[]>(`/folders/user/${userId}`);
+      if (folderData) {
+        setFolders(folderData);
+      }
+
+      // Fetch files data
+      const fileData = await fetchData<File[]>(`/files/${userId}`);
+      if (fileData) {
+        setFiles(fileData);
+      }
+
+      // Fetch trash data
+      const trashedFolders = await fetchData<Folder[]>(
+        `/folders/user/${userId}/deleted`
       );
-      const data = await response.json()
-      setFiles(data);
-    } catch (error) {
-      console.log(error);
+      if (trashedFolders) {
+        setTrashFolders(trashedFolders);
+      }
+
+      const trashedFiles = await fetchData<File[]>(`/files/soft/${userId}`);
+      if (trashedFiles) {
+        setTrashFiles(trashedFiles);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch data");
+    } finally {
+      setIsLoading(false);
     }
-  }, [userId, token]);
+  }, [userId, fetchData]);
 
-  const fetchTrashFolders = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `https://www.parkteletechafrica.com/api/folders/trash?user_id=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          }
-        }
-      );
-      const data = await response.json();
-
-      const message = data.message;
-      setTrashFolderMessage(message);
-      setTrashFolders(data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [token, userId]);
-
-  const fetchTrashFiles = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/files/soft/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const data = await response.json();
-      setTrashFileMessage(data.message);
-      setTrashFiles(data.data);
-
-    } catch (error) {
-      console.log(error);
-    }
-  }, [token, userId]);
-
+  // Initial data fetch
   useEffect(() => {
-    fetchFolders();
-    fetchFiles();
-    fetchTrashFolders();
-    fetchTrashFiles();
-  }, [fetchFolders, fetchFiles, fetchTrashFolders, fetchTrashFiles]);
+    refreshData();
+  }, [refreshData]);
 
-  const refreshFolderData = useCallback(async () => {
-    await fetchFolders();
-  }, [fetchFolders]);
-
-  const refreshFileData = useCallback(async () => {
-    await fetchFiles();
-  }, [fetchFiles]);
-
-  const refreshTrashFolderData = useCallback(async () => {
-    await fetchTrashFolders();
-  }, [fetchTrashFolders]);
-
-  const refreshTrashFileData = useCallback(async () => {
-    await fetchTrashFiles();
-  }, [fetchTrashFiles]);
+  const contextValue: GlobalContextType = {
+    folders,
+    files,
+    trashFolders,
+    trashFiles,
+    setTrashFolders,
+    setTrashFiles,
+    setFolders,
+    setFiles,
+    refreshData,
+    isLoading,
+    error,
+    trashFolderMessage,
+    setTrashFolderMessage,
+    trashFileMessage,
+    setTrashFileMessage,
+  };
 
   return (
-    <GlobalContext.Provider
-      value={{
-        folders,
-        files,
-        setFolders,
-        setFiles,
-        refreshFileData,
-        refreshFolderData,
-        trashFolders,
-        trashFiles,
-        setTrashFolders,
-        setTrashFiles,
-        refreshTrashFolderData,
-        refreshTrashFileData,
-        trashFolderMessage,
-        setTrashFolderMessage,
-        trashFileMessage,
-        setTrashFileMessage,
-      }}
-    >
+    <GlobalContext.Provider value={contextValue}>
       {children}
     </GlobalContext.Provider>
   );
@@ -199,7 +184,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
 export const useApi = () => {
   const context = useContext(GlobalContext);
   if (!context) {
-    throw new Error("useApi must be used within a ApiProvider");
+    throw new Error("useApi must be used within an ApiProvider");
   }
   return context;
 };
