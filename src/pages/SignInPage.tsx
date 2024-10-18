@@ -66,7 +66,6 @@
 //       const storeUser = JSON.stringify(userData.data);
 //       setTokensWithExpiration(accessToken, refreshToken, storeUser);
 
-
 //       // Refresh data
 //       await refreshFileData();
 //       await refreshFolderData();
@@ -256,7 +255,6 @@ const SignInPage = () => {
       setTokensWithExpiration(accessToken, refreshToken, userData);
 
       // Refresh application data
-      await refreshData();
 
       toast.success("Login successful!");
 
@@ -264,6 +262,7 @@ const SignInPage = () => {
       setTimeout(() => {
         navigate("/");
       }, 3000);
+      await refreshData();
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(
