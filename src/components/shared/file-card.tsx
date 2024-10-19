@@ -7,7 +7,6 @@ import {
   FileTextIcon,
   VideoIcon,
   Archive,
-  Edit2Icon,
 } from "lucide-react";
 import { FaFilePdf } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -18,7 +17,6 @@ interface FileCardProps {
   name: string;
   size?: number;
   fileUrl?: string;
-  isPinned?: boolean;
   refreshData: () => Promise<void>;
 }
 
@@ -31,13 +29,9 @@ const FileCard: React.FC<FileCardProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [loadingStates, setLoadingStates] = useState({
     delete: false,
-    pin: false,
-    rename: false,
   });
-  const [newFileName, setNewFileName] = useState(name);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -138,36 +132,6 @@ const FileCard: React.FC<FileCardProps> = ({
     }
   };
 
-  const handleRenameFile = async () => {
-    try {
-      setLoadingStates((prev) => ({ ...prev, rename: true }));
-      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-
-      const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/files/${id}/rename`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ newFileName }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to rename file");
-
-      toast.success("File renamed successfully!");
-      setIsRenameModalOpen(false);
-      await refreshData();
-    } catch (error) {
-      toast.error("Failed to rename file");
-      console.error("Error renaming file:", error);
-    } finally {
-      setLoadingStates((prev) => ({ ...prev, rename: false }));
-    }
-  };
-
   const handleDownload = () => {
     fetch(fileUrl as string)
       .then((response) => response.blob())
@@ -222,13 +186,6 @@ const FileCard: React.FC<FileCardProps> = ({
                 <ul className="py-1">
                   <li
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
-                    onClick={() => setIsRenameModalOpen(true)}
-                  >
-                    <Edit2Icon className="w-4 h-4" />
-                    Rename
-                  </li>
-                  <li
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
                     onClick={handleDownload}
                   >
                     <FileIcon className="w-4 h-4" />
@@ -263,16 +220,6 @@ const FileCard: React.FC<FileCardProps> = ({
           isLoading={loadingStates.delete}
           onClose={() => setIsDeleteModalOpen(false)}
           onDelete={handleDeleteFile}
-        />
-      )}
-
-      {isRenameModalOpen && (
-        <RenameModal
-          fileName={newFileName}
-          isLoading={loadingStates.rename}
-          onClose={() => setIsRenameModalOpen(false)}
-          onRename={handleRenameFile}
-          onChange={setNewFileName}
         />
       )}
     </div>
@@ -315,54 +262,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
             disabled={isLoading}
           >
             {isLoading ? "Deleting..." : "Delete"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-interface RenameModalProps {
-  fileName: string;
-  isLoading: boolean;
-  onClose: () => void;
-  onRename: () => void;
-  onChange: (value: string) => void;
-}
-
-const RenameModal: React.FC<RenameModalProps> = ({
-  fileName,
-  isLoading,
-  onClose,
-  onRename,
-  onChange,
-}) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-lg font-semibold mb-2">Rename File</h2>
-        <input
-          type="text"
-          value={fileName}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-          placeholder="Enter new file name"
-          disabled={isLoading}
-        />
-        <div className="flex justify-end gap-2">
-          <button
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-            onClick={onClose}
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-            onClick={onRename}
-            disabled={isLoading}
-          >
-            {isLoading ? "Renaming..." : "Rename"}
           </button>
         </div>
       </div>

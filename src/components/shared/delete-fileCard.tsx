@@ -7,6 +7,8 @@ import {
   FileTextIcon,
   VideoIcon,
   Archive,
+  Trash2Icon,
+  Undo2Icon,
 } from "lucide-react";
 import { FaFilePdf } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -123,6 +125,40 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
     }
   };
 
+  const handleRestoreFile = async () => {
+    try {
+      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+      const formData = {
+        userId: userId,
+      };
+
+      const response = await fetch(
+        `https://parkteletech-storage-backend.onrender.com/api/v1/files/restore/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      setIsLoading(true);
+      if (!response.ok) {
+        throw new Error("Failed to restore file");
+      }
+      setIsDeleteModalOpen(false);
+      await refreshData();
+      toast.success("File restored successfully!");
+    } catch (error) {
+      toast.error("Failed to restore file");
+      console.error("Error restoring file:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="w-36 lg:w-60 relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group">
       <div className="w-full aspect-square rounded-lg p-2">
@@ -158,7 +194,15 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-red-600"
                     onClick={openDeleteModal}
                   >
+                    <Trash2Icon className="w-4 h-4" />
                     Delete
+                  </li>
+                  <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-green-600"
+                    onClick={handleRestoreFile}
+                  >
+                    <Undo2Icon className="w-4 h-4" />
+                    Restore
                   </li>
                 </ul>
               </div>
