@@ -1,6 +1,13 @@
 import { ACCESS_TOKEN_KEY } from "@/constants";
-import { FolderIcon, MoreVertical } from "lucide-react";
-import { useState } from "react";
+import {
+  FolderIcon,
+  MoreVertical,
+  Loader2,
+  PinIcon,
+  Edit2Icon,
+  Trash2Icon,
+} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -10,8 +17,9 @@ interface FolderCardProps {
   fileCount: number;
   lastModified?: string;
   totalSize?: number;
-  refreshFolderData: () => Promise<void>;
-  refreshTrashFolderData: () => Promise<void>;
+  isPinned?: boolean;
+  isHome?: boolean;
+  refreshData: () => Promise<void>;
 }
 
 const FolderCard: React.FC<FolderCardProps> = ({
@@ -19,14 +27,39 @@ const FolderCard: React.FC<FolderCardProps> = ({
   name,
   fileCount,
   lastModified,
+  isPinned,
   totalSize,
-  refreshFolderData,
-  refreshTrashFolderData,
+  isHome = false,
+  refreshData,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState({
+    delete: false,
+    rename: false,
+    pin: false,
+    unpin: false,
+  });
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
@@ -56,53 +89,100 @@ const FolderCard: React.FC<FolderCardProps> = ({
     setIsDropdownOpen(false);
   };
 
+  const baseUrl =
+    "https://parkteletech-storage-backend.onrender.com/api/v1/folders";
+
   const handleRenameFolder = async (newName: string) => {
+    setIsLoading((prev) => ({ ...prev, rename: true }));
     try {
-      const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/folders/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ name: newName }),
-        }
-      );
+      const response = await fetch(`${baseUrl}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name: newName }),
+      });
       if (!response.ok) {
         throw new Error("Failed to rename folder");
       }
-      await refreshFolderData();
-      await refreshTrashFolderData();
+      await refreshData();
       toast.success("Folder renamed successfully!");
       setIsRenameModalOpen(false);
     } catch (error) {
       console.error("Error renaming folder:", error);
       toast.error("Failed to rename folder");
+    } finally {
+      setIsLoading((prev) => ({ ...prev, rename: false }));
     }
   };
 
   const handleDeleteFolder = async () => {
+    setIsLoading((prev) => ({ ...prev, delete: true }));
     try {
-      const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/folders/soft-delete/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`/soft-delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to delete folder");
       }
-      toast.success("Folder deleted successfully!");
       setIsDeleteModalOpen(false);
-      await refreshFolderData();
-      await refreshTrashFolderData();
+      await refreshData();
+      toast.success("Folder deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete folder");
       console.error("Error deleting folder:", error);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, delete: false }));
+    }
+  };
+
+  const handlePinFolder = async () => {
+    setIsLoading((prev) => ({ ...prev, pin: true }));
+    try {
+      const response = await fetch(`${baseUrl}/pin/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to pin folder");
+      }
+      await refreshData();
+      toast.success("Folder pinned successfully!");
+    } catch (error) {
+      toast.error("Failed to pin folder");
+      console.error("Error pinning folder:", error);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, pin: false }));
+      setIsDropdownOpen(false);
+    }
+  };
+
+  const handleUnpinFolder = async () => {
+    setIsLoading((prev) => ({ ...prev, unpin: true }));
+    try {
+      const response = await fetch(`${baseUrl}/unpin/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to unpin folder");
+      }
+      await refreshData();
+      toast.success("Folder unpinned successfully!");
+    } catch (error) {
+      toast.error("Failed to unpin folder");
+      console.error("Error unpinning folder:", error);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, unpin: false }));
+      setIsDropdownOpen(false);
     }
   };
 
@@ -126,7 +206,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
             </div>
           </Link>
         </div>
-        <div className="relative ml-2">
+        <div className="relative ml-2" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
             className="p-1 hover:bg-gray-100 rounded-full"
@@ -137,16 +217,47 @@ const FolderCard: React.FC<FolderCardProps> = ({
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
               <ul className="py-1">
                 <li
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                  className="px-4 py-2 hover:bg-gray-100 gap-2 cursor-pointer text-sm flex items-center"
                   onClick={openRenameModal}
                 >
-                  Rename
+                  {isLoading.rename ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : null}
+                  <Edit2Icon className="w-4 h-4" /> Rename
                 </li>
+                {isHome ? (
+                  <>
+                    {isPinned ? (
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 gap-2 cursor-pointer text-sm flex items-center"
+                        onClick={handleUnpinFolder}
+                      >
+                        {isLoading.unpin ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : null}
+                        <PinIcon className="w-4 h-4" /> Unpin
+                      </li>
+                    ) : (
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 gap-2 cursor-pointer text-sm flex items-center"
+                        onClick={handlePinFolder}
+                      >
+                        {isLoading.pin ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : null}
+                        <PinIcon className="w-4 h-4" /> Pin Folder
+                      </li>
+                    )}
+                  </>
+                ) : null}
                 <li
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-red-600"
+                  className="px-4 py-2 hover:bg-gray-100 gap-2 cursor-pointer text-sm text-red-600 flex items-center"
                   onClick={openDeleteModal}
                 >
-                  Delete
+                  {isLoading.delete ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : null}
+                  <Trash2Icon className="w-4 h-4" /> Delete
                 </li>
               </ul>
             </div>
@@ -159,12 +270,14 @@ const FolderCard: React.FC<FolderCardProps> = ({
           onClose={() => setIsRenameModalOpen(false)}
           onRename={handleRenameFolder}
           currentName={name}
+          isLoading={isLoading.rename}
         />
       )}
       {isDeleteModalOpen && (
         <DeleteModal
           onClose={() => setIsDeleteModalOpen(false)}
           onDelete={handleDeleteFolder}
+          isLoading={isLoading.delete}
         />
       )}
     </div>
@@ -175,12 +288,14 @@ interface RenameModalProps {
   onClose: () => void;
   onRename: (newName: string) => void;
   currentName: string;
+  isLoading: boolean;
 }
 
 const RenameModal: React.FC<RenameModalProps> = ({
   onClose,
   onRename,
   currentName,
+  isLoading,
 }) => {
   const [newName, setNewName] = useState(currentName);
 
@@ -198,18 +313,22 @@ const RenameModal: React.FC<RenameModalProps> = ({
           placeholder="New folder name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
+          disabled={isLoading}
         />
         <div className="flex justify-end gap-2">
           <button
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
             onClick={onClose}
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
             onClick={handleRename}
+            disabled={isLoading}
           >
+            {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Rename
           </button>
         </div>
@@ -221,9 +340,14 @@ const RenameModal: React.FC<RenameModalProps> = ({
 interface DeleteModalProps {
   onClose: () => void;
   onDelete: () => void;
+  isLoading: boolean;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onDelete }) => {
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  onClose,
+  onDelete,
+  isLoading,
+}) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-md w-full max-w-md">
@@ -234,15 +358,18 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onDelete }) => {
         </p>
         <div className="flex justify-end gap-2">
           <button
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
             onClick={onClose}
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:opacity-50 flex items-center"
             onClick={onDelete}
+            disabled={isLoading}
           >
+            {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Delete
           </button>
         </div>

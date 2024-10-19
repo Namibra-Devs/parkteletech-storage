@@ -4,55 +4,66 @@ import { useApi } from "@/hooks/context/GlobalContext";
 import { ToastContainer } from "react-toastify";
 
 const Trash = () => {
-  const { trashFolders, refreshTrashFolderData, trashFolderMessage, trashFiles, refreshTrashFileData, trashFileMessage } = useApi();
+  const { trashFiles, trashFolders, refreshData, isLoading } = useApi();
+  console.log({ trashFiles, trashFolders });
+  const processedFolders = trashFolders.map((folder) => ({
+    ...folder,
+    fileCount: folder.files?.length || 0,
+    totalSize:
+      folder.files?.reduce((acc, file) => acc + (Number(file.size) || 0), 0) ||
+      0,
+  }));
+
+  console.log({ trashFolders, processedFolders });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   return (
     <div className="w-full p-4 flex-col">
       <div className="w-full">
-      <ToastContainer position="top-center" />
-        <p className="font-semibold">Trash Folders</p>
-        <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
-          {trashFolderMessage !== "No trashed folders found." ? (
-            trashFolders.map((folder) => (
-              <div className="" key={folder.id}>
-                <DeleteFolderCard
-                  id={folder.id}
-                  name={folder.name}
-                  fileCount={0}
-                  refreshTrashFolderData={refreshTrashFolderData}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="text-center w-full justify-center flex">
-              Trash is empty
-            </div>
-          )}
-        </div>
-        </div>
+        <ToastContainer position="top-center" />
+        <div className="">
+          <h1 className="text-2xl font-bold">Trash</h1>
 
-        <div className="w-full">
-        <p className="font-semibold">Trash Files</p>
-        <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
-          {trashFileMessage !== "No trashed files found." ? (
-            trashFiles.map((file) => (
-              <div className="" key={file.id}>
-                <DeleteFileCard
-                  id={file.id}
-                  name={file.name}
-                  size={file.size}
-                  refreshTrashFileData={refreshTrashFileData}
-                  refreshFileData={refreshTrashFileData}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="text-center w-full justify-center flex">
-              File Trash is empty
+          {trashFolders && trashFolders.length > 0 ? (
+            <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
+              {processedFolders.map((folder) => (
+                <div key={folder.id}>
+                  <DeleteFolderCard
+                    id={folder.id as number}
+                    name={folder.name as string}
+                    fileCount={folder.fileCount as number}
+                    totalSize={folder.totalSize as number}
+                    refreshData={refreshData}
+                  />
+                </div>
+              ))}
             </div>
-          )}
-          </div>
+          ) : null}
+
+          {trashFiles && trashFiles.length > 0 ? (
+            <div className="grid grid-cols-2 place-items-center lg:grid-cols-4 gap-4 items-center w-full">
+              {trashFiles.map((file) => (
+                <div className="" key={file.id}>
+                  <DeleteFileCard
+                    id={file.id as number}
+                    name={file.originalFileName as string}
+                    fileUrl={file.url as string}
+                    size={file.size as number}
+                    refreshData={refreshData}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
+    </div>
   );
 };
 

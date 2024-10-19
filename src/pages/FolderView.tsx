@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import FileCard from "@/components/shared/file-card";
 import { ACCESS_TOKEN_KEY } from "@/constants";
 import { FolderModal } from "@/components/shared/folder-modal";
+import { useApi } from "@/hooks/context/GlobalContext";
 
 interface File {
   id: number;
@@ -47,6 +48,8 @@ const FolderView: React.FC = () => {
   const [breadcrumbs, setBreadcrumbs] = useState<
     { id: number; name: string }[]
   >([]);
+
+  const { refreshData } = useApi();
 
   const fetchFolderData = useCallback(async () => {
     try {
@@ -214,33 +217,36 @@ const FolderView: React.FC = () => {
       </div>
 
       {/* Folders Section */}
-      {folderData?.childFolder && folderData.childFolder.length > 0 ? (
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Folders</h2>
-          <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
-            {folderData.childFolder.map((folder) => (
-              <FolderCard
-                key={folder.id}
-                id={folder.id}
-                name={folder.name}
-                lastModified={folder.updatedAt}
-                totalSize={folder.files?.reduce(
-                  (acc, file) => acc + parseInt(file.size),
-                  0
-                )}
-                fileCount={folder.files?.length || 0}
-                refreshFolderData={fetchFolderData}
-                refreshTrashFolderData={fetchFolderData}
-              />
-            ))}
+      <div className="">
+        <h2 className="text-lg mt-5 font-semibold text-gray-700 mb-4">
+          Folders
+        </h2>
+        {folderData?.childFolder && folderData.childFolder.length > 0 ? (
+          <div className="mb-8">
+            <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
+              {folderData.childFolder.map((folder) => (
+                <FolderCard
+                  key={folder.id}
+                  id={folder.id}
+                  name={folder.name}
+                  lastModified={folder.updatedAt}
+                  totalSize={folder.files?.reduce(
+                    (acc, file) => acc + parseInt(file.size),
+                    0
+                  )}
+                  fileCount={folder.files?.length || 0}
+                  refreshData={refreshData}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg p-8 mb-8 text-center">
-          <p className="text-gray-500 mb-4">No folders found</p>
-          <span className="text-4xl lg:text-6xl">📁</span>
-        </div>
-      )}
+        ) : (
+          <div className="bg-white rounded-lg p-8 mb-8 text-center">
+            <p className="text-gray-500 mb-4">No folders found</p>
+            <span className="text-4xl lg:text-6xl">📁</span>
+          </div>
+        )}
+      </div>
 
       {/* Files Section */}
       <div>
@@ -254,8 +260,7 @@ const FolderView: React.FC = () => {
                 name={file.originalFileName}
                 fileUrl={file.url}
                 size={parseInt(file.size)}
-                refreshFileData={fetchFolderData}
-                refreshTrashFileData={fetchFolderData}
+                refreshData={refreshData}
               />
             ))}
           </div>

@@ -14,6 +14,7 @@ interface Folder {
   fileCount?: number;
   userId?: number;
   parentFolderId?: number;
+  isPinned?: boolean;
   files?: File[];
   childFolders?: Folder[];
   createdAt?: string;
