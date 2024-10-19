@@ -8,7 +8,9 @@ import {
   VideoIcon,
   Archive,
 } from "lucide-react";
+import { FaFilePdf } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { ACCESS_TOKEN_KEY, USER_KEY } from "@/constants";
 
 interface FileCardProps {
   id: number;
@@ -29,6 +31,7 @@ const FileCard: React.FC<FileCardProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const formatFileSize = (bytes: number | null): string => {
     if (!bytes) return "Unknown size";
@@ -36,6 +39,11 @@ const FileCard: React.FC<FileCardProps> = ({
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
   };
+
+  const extension = name.toLowerCase().split(".").pop();
+
+  const user = localStorage.getItem(USER_KEY);
+  const userId = user ? JSON.parse(user).id : 0;
 
   const getFileIcon = () => {
     const extension = name.toLowerCase().split(".").pop();
@@ -59,10 +67,13 @@ const FileCard: React.FC<FileCardProps> = ({
       case "7z":
         return <Archive className="w-12 h-12 text-yellow-500" />;
       case "txt":
-      case "doc":
-      case "docx":
-      case "pdf":
         return <FileTextIcon className="w-12 h-12 text-green-500" />;
+      case "doc":
+        return <FileTextIcon className="w-12 h-12 text-green-500" />;
+      case "docx":
+        return <FileTextIcon className="w-12 h-12 text-green-500" />;
+      case "pdf":
+        return <FaFilePdf className="w-12 h-12 text-red-500" />;
       default:
         return <FileIcon className="w-12 h-12 text-gray-500" />;
     }
@@ -82,15 +93,13 @@ const FileCard: React.FC<FileCardProps> = ({
 
   const handleDeleteFile = async () => {
     try {
-      const userId = localStorage.getItem("userId");
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
       const formData = {
-        ids: [id],
-        user_id: userId,
+        userId: userId,
       };
 
       const response = await fetch(
-        `https://www.parkteletechafrica.com/api/files/delete`,
+        `https://parkteletech-storage-backend.onrender.com/api/v1/files/soft/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -100,6 +109,8 @@ const FileCard: React.FC<FileCardProps> = ({
           body: JSON.stringify(formData),
         }
       );
+
+      setIsLoading(true);
       if (!response.ok) {
         throw new Error("Failed to delete file");
       }
@@ -110,11 +121,13 @@ const FileCard: React.FC<FileCardProps> = ({
     } catch (error) {
       toast.error("Failed to delete file");
       console.error("Error deleting file:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group">
+    <div className="w-36 lg:w-60 relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group">
       <div className="w-full aspect-square rounded-lg p-2">
         {isImage ? (
           <img
@@ -123,18 +136,19 @@ const FileCard: React.FC<FileCardProps> = ({
             className="w-full h-full object-cover rounded-lg"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-lg">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 rounded-lg">
             {getFileIcon()}
+            {extension?.toUpperCase()}
           </div>
         )}
 
         {/* Overlay with details - visible on hover for md+ screens, always visible on small screens */}
-        <div className="absolute inset-0 rounded-lg bg-black bg-opacity-50 p-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute inset-0 rounded-lg bg-black bg-opacity-60 p-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 shadow-md">
           {/* Top options button */}
           <div className="absolute top-3 right-3">
             <button
               onClick={toggleDropdown}
-              className="p-1.5 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full transition-colors"
+              className="p-1.5 bg-white bg-opacity-40 hover:bg-opacity-100 rounded-full transition-colors"
               aria-label="More options"
             >
               <MoreVertical className="w-4 h-4 text-gray-700" />
@@ -169,6 +183,7 @@ const FileCard: React.FC<FileCardProps> = ({
       {isDeleteModalOpen && (
         <DeleteModal
           fileName={name}
+          isLoading={isLoading}
           onClose={() => setIsDeleteModalOpen(false)}
           onDelete={handleDeleteFile}
         />
@@ -179,6 +194,7 @@ const FileCard: React.FC<FileCardProps> = ({
 
 interface DeleteModalProps {
   fileName: string;
+  isLoading: boolean;
   onClose: () => void;
   onDelete: () => void;
 }
@@ -186,6 +202,7 @@ interface DeleteModalProps {
 const DeleteModal: React.FC<DeleteModalProps> = ({
   fileName,
   onClose,
+  isLoading = false,
   onDelete,
 }) => {
   return (
@@ -193,7 +210,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 className="text-lg font-semibold mb-2">Delete File</h2>
         <p className="mb-4 text-gray-600">
-          Are you sure you want to delete{" "}
+          Are you sure you want to trash{" "}
           <span className="font-medium">{fileName}</span>? This action cannot be
           undone.
         </p>
@@ -207,8 +224,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           <button
             className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
             onClick={onDelete}
+            disabled={isLoading}
           >
-            Delete
+            {isLoading ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>

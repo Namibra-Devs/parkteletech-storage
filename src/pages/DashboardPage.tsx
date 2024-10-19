@@ -247,32 +247,25 @@ interface File {
 
 const DashboardPage = () => {
   const { folders, files, refreshData, isLoading, error } = useApi();
-
   const [homeFolders, setHomeFolders] = useState<Folder[]>([]);
   const [homeFiles, setHomeFiles] = useState<File[]>([]);
   const [pinnedFolders, setPinnedFolders] = useState<Folder[]>([]);
 
+  console.log({
+    folders,
+    files,
+    homeFolders,
+    homeFiles,
+    pinnedFolders,
+  });
+
   useEffect(() => {
-    console.log("Raw files from API:", files); // Debug log for raw files
-
-    // Ensure files is an array before filtering
-    const filesArray = Array.isArray(files) ? files : [];
-    console.log("Files array:", filesArray); // Debug log for files array
-
-    // Process files that don't have a folderId or where folderId is null
-    const processedFiles = filesArray.filter((file) => {
-      console.log("File:", file.originalFileName, "folderId:", file.folderId); // Debug log for each file
-      return !file.folderId;
-    });
-
-    console.log("Processed files (no folder):", processedFiles); // Debug log for filtered files
-    setHomeFiles(processedFiles);
-
-    // Ensure folders is an array before processing
-    const foldersArray = Array.isArray(folders) ? folders : [];
+    // Process files that don't belong to any folder
+    // const processedFiles = files.filter((file) => !file.folderId);
+    setHomeFiles(files);
 
     // Process folders with their actual file counts and additional information
-    const processedFolders = foldersArray.map((folder) => ({
+    const processedFolders = folders.map((folder) => ({
       ...folder,
       fileCount: folder.files?.length || 0,
       totalSize:
@@ -287,7 +280,8 @@ const DashboardPage = () => {
     );
     setHomeFolders(rootFolders);
 
-    // Set pinned folders
+    // Set pinned folders (you might want to add a "pinned" property to your folder data)
+    // For now, we'll just take the 3 most recently updated folders
     const sortedFolders = [...rootFolders].sort(
       (a, b) =>
         new Date(b.updatedAt || 0).getTime() -
@@ -400,7 +394,7 @@ const DashboardPage = () => {
         </div>
         <div className="w-full">
           {homeFiles && homeFiles.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid lg:grid-cols-4 gap-4 items-center w-full">
+            <div className="grid grid-cols-2 place-items-center lg:grid-cols-4 gap-4 items-center w-full">
               {homeFiles.map((file: File) => (
                 <FileCard
                   key={file.id}

@@ -21,6 +21,10 @@ interface Folder {
   deletedAt?: null;
 }
 
+export interface FolderProps {
+  folders: Folder[];
+}
+
 interface File {
   id?: number;
   originalFileName?: string;
@@ -36,6 +40,10 @@ interface File {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: null;
+}
+
+export interface FileProps {
+  files: File[];
 }
 
 interface ApiResponse<T> {
@@ -121,28 +129,30 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Fetch folders data
-      const folderData = await fetchData<Folder[]>(`/folders/user/${userId}`);
+      const folderData = await fetchData<FolderProps>(
+        `/folders/user/${userId}`
+      );
       if (folderData) {
-        setFolders(folderData);
+        setFolders(folderData.folders);
       }
 
       // Fetch files data
-      const fileData = await fetchData<File[]>(`/files/${userId}`);
+      const fileData = await fetchData<FileProps>(`/files/${userId}`);
       if (fileData) {
-        setFiles(fileData);
+        setFiles(fileData.files);
       }
 
       // Fetch trash data
-      const trashedFolders = await fetchData<Folder[]>(
+      const trashedFolders = await fetchData<FolderProps>(
         `/folders/user/${userId}/deleted`
       );
       if (trashedFolders) {
-        setTrashFolders(trashedFolders);
+        setTrashFolders(trashedFolders.folders);
       }
 
-      const trashedFiles = await fetchData<File[]>(`/files/soft/${userId}`);
+      const trashedFiles = await fetchData<FileProps>(`/files/soft/${userId}`);
       if (trashedFiles) {
-        setTrashFiles(trashedFiles);
+        setTrashFiles(trashedFiles.files);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch data");

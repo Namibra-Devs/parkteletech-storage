@@ -35,7 +35,7 @@ interface Folder {
   updatedAt: string;
   deletedAt: string | null;
   files: File[];
-  childFolders: Folder[];
+  childFolder: Folder[];
 }
 
 const FolderView: React.FC = () => {
@@ -65,7 +65,7 @@ const FolderView: React.FC = () => {
           updatedAt: new Date().toISOString(),
           deletedAt: null,
           files: [],
-          childFolders: [],
+          childFolder: [],
         });
       } else {
         const response = await fetch(
@@ -214,15 +214,20 @@ const FolderView: React.FC = () => {
       </div>
 
       {/* Folders Section */}
-      {folderData?.childFolders && folderData.childFolders.length > 0 ? (
+      {folderData?.childFolder && folderData.childFolder.length > 0 ? (
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Folders</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {folderData.childFolders.map((folder) => (
+          <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
+            {folderData.childFolder.map((folder) => (
               <FolderCard
                 key={folder.id}
                 id={folder.id}
                 name={folder.name}
+                lastModified={folder.updatedAt}
+                totalSize={folder.files?.reduce(
+                  (acc, file) => acc + parseInt(file.size),
+                  0
+                )}
                 fileCount={folder.files?.length || 0}
                 refreshFolderData={fetchFolderData}
                 refreshTrashFolderData={fetchFolderData}
@@ -241,7 +246,7 @@ const FolderView: React.FC = () => {
       <div>
         <h2 className="text-lg font-semibold text-gray-700 mb-4">Files</h2>
         {folderData?.files && folderData.files.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-center place-items-center">
             {folderData.files.map((file) => (
               <FileCard
                 key={file.id}
