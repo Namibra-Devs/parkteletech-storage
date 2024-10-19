@@ -8,6 +8,7 @@ import { FolderModal } from "@/components/shared/folder-modal";
 import GridComponent from "@/components/shared/grid";
 import ListComponent from "@/components/shared/list";
 import { useApi } from "@/hooks/context/GlobalContext";
+import { PinIcon } from "lucide-react";
 
 export interface Folder {
   id?: number;
@@ -122,7 +123,9 @@ const DashboardPage = () => {
 
       {/* Pinned Folders Section */}
       <div className="mt-10">
-        <p className="font-semibold">Pinned 📌</p>
+        <p className="font-semibold">
+          Pinned <PinIcon className="h-4 w-4" fill="red" />
+        </p>
       </div>
       <div className="w-full">
         {pinnedFolders.length > 0 ? (
