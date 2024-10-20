@@ -34,7 +34,7 @@ export default function DashboardLayout({
             <Header />
           </div>
         </div>
-        <main className="relative h-full w-full flex-1 overflow-y-auto  bg-purple-50 focus:outline-none md:mx-0 md:my-0 md:mr-4 ">
+        <main className="relative h-full w-full flex-1 overflow-y-auto  bg-purple-50 focus:outline-none md:mx-0 md:my-0 md:mr-4 md:mb-4 ">
           {children}
         </main>
       </div>

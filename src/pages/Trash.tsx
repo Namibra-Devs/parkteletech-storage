@@ -28,7 +28,7 @@ const Trash = () => {
       <div className="w-full">
         <ToastContainer position="top-center" />
         <div className="">
-          <h1 className="text-2xl font-bold">Trash</h1>
+          <h1 className="text-2xl font-bold mb-4">Trash</h1>
 
           {trashFolders && trashFolders.length > 0 ? (
             <div className="flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:gap-4 my-4">
