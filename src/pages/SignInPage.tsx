@@ -124,6 +124,9 @@ const SignInPage = () => {
       setTimeout(() => {
         navigate("/");
       }, 2000); // 2 seconds
+
+      // refresh the page
+      window.location.reload();
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(
