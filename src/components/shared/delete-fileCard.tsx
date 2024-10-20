@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FileIcon,
   MoreVertical,
@@ -31,7 +31,28 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({
+    delete: false,
+  });
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const formatFileSize = (bytes: number | null): string => {
     if (!bytes) return "Unknown size";
@@ -95,7 +116,7 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
     try {
       const token = localStorage.getItem(ACCESS_TOKEN_KEY);
       const formData = {
-        userId: userId,
+        userId,
       };
 
       const response = await fetch(
@@ -109,19 +130,18 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
           body: JSON.stringify(formData),
         }
       );
-
-      setIsLoading(true);
       if (!response.ok) {
         throw new Error("Failed to delete file");
       }
-      toast.success("File deleted successfully!");
       setIsDeleteModalOpen(false);
+      setIsDeleteModalOpen(false);
+      toast.success("File deleted successfully!");
       await refreshData();
     } catch (error) {
       toast.error("Failed to delete file");
       console.error("Error deleting file:", error);
     } finally {
-      setIsLoading(false);
+      setLoadingStates((prev) => ({ ...prev, delete: false }));
     }
   };
 
@@ -135,7 +155,7 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
       const response = await fetch(
         `https://parkteletech-storage-backend.onrender.com/api/v1/files/restore/${id}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -144,7 +164,6 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
         }
       );
 
-      setIsLoading(true);
       if (!response.ok) {
         throw new Error("Failed to restore file");
       }
@@ -155,7 +174,7 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
       toast.error("Failed to restore file");
       console.error("Error restoring file:", error);
     } finally {
-      setIsLoading(false);
+      setLoadingStates((prev) => ({ ...prev, delete: false }));
     }
   };
 
@@ -191,14 +210,14 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
               <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
                 <ul className="py-1">
                   <li
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-red-600"
+                    className="px-4 py-2 flex gap-2 hover:bg-gray-100 cursor-pointer text-sm text-red-600"
                     onClick={openDeleteModal}
                   >
                     <Trash2Icon className="w-4 h-4" />
                     Delete
                   </li>
                   <li
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-green-600"
+                    className="px-4 py-2 flex gap-2 hover:bg-gray-100 cursor-pointer text-sm text-green-600"
                     onClick={handleRestoreFile}
                   >
                     <Undo2Icon className="w-4 h-4" />
@@ -224,7 +243,7 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
       {isDeleteModalOpen && (
         <DeleteModal
           fileName={name}
-          isLoading={isLoading}
+          isLoading={loadingStates.delete}
           onClose={() => setIsDeleteModalOpen(false)}
           onDelete={handleDeleteFile}
         />
@@ -251,7 +270,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 className="text-lg font-semibold mb-2">Delete File</h2>
         <p className="mb-4 text-gray-600">
-          Are you sure you want to trash{" "}
+          Are you sure you want to delete{" "}
           <span className="font-medium">{fileName}</span>? This action cannot be
           undone.
         </p>
