@@ -9,6 +9,7 @@ import {
   USER_KEY,
 } from "@/constants";
 import { getDeviceInfo } from "@/lib/utils";
+import { useApi } from "@/hooks/context/GlobalContext";
 
 interface AuthResponse {
   data: {
@@ -30,6 +31,8 @@ const SignInPage = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+
+  const { refreshData } = useApi();
 
   const setTokensWithExpiration = (
     accessToken: string,
@@ -125,6 +128,7 @@ const SignInPage = () => {
       setTimeout(() => {
         navigate("/");
       }, 3000);
+      refreshData();
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(
