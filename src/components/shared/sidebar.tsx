@@ -1,10 +1,11 @@
-"use client";
 import DashboardNav from "@/components/shared/dashboard-nav";
 import { navItems } from "@/constants";
+import { useApi, CustomFile } from "@/hooks/context/GlobalContext";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
+import StorageUsage from "./storage-ui";
 
 type SidebarProps = {
   className?: string;
@@ -13,6 +14,8 @@ type SidebarProps = {
 export default function Sidebar({ className }: SidebarProps) {
   const { isMinimized, toggle } = useSidebar();
   const [status, setStatus] = useState(false);
+
+  const { files } = useApi();
 
   const handleToggle = () => {
     setStatus(true);
@@ -24,7 +27,7 @@ export default function Sidebar({ className }: SidebarProps) {
       className={cn(
         `relative z-10 hidden h-screen flex-none  px-3 md:block`,
         status && "duration-500",
-        !isMinimized ? "w-72" : "w-[80px]",
+        !isMinimized ? "w-72" : "w-[85px]",
         className
       )}
     >
@@ -53,6 +56,18 @@ export default function Sidebar({ className }: SidebarProps) {
             <DashboardNav items={navItems} />
           </div>
         </div>
+      </div>
+
+      <div className="absolute bottom-4 w-full">
+        <StorageUsage files={files as CustomFile[]} isMinimized={isMinimized} />
+        <p
+          className={cn(
+            "text-xs text-center text-gray-500 mt-2",
+            isMinimized && "hidden"
+          )}
+        >
+          &copy; {new Date().getFullYear()} Park Teletech
+        </p>
       </div>
     </nav>
   );

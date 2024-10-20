@@ -43,6 +43,9 @@ interface File {
   deletedAt?: null;
 }
 
+export interface CustomFile {
+  size: number;
+}
 export interface FileProps {
   files: File[];
 }
