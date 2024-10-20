@@ -7,6 +7,8 @@ import {
   FileTextIcon,
   VideoIcon,
   Archive,
+  Trash2Icon,
+  DownloadIcon,
 } from "lucide-react";
 import { FaFilePdf } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -188,14 +190,14 @@ const FileCard: React.FC<FileCardProps> = ({
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
                     onClick={handleDownload}
                   >
-                    <FileIcon className="w-4 h-4" />
+                    <DownloadIcon className="w-4 h-4" />
                     Download
                   </li>
                   <li
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-red-600 flex items-center gap-2"
                     onClick={() => setIsDeleteModalOpen(true)}
                   >
-                    <FileIcon className="w-4 h-4" />
+                    <Trash2Icon className="w-4 h-4" />
                     Delete
                   </li>
                 </ul>

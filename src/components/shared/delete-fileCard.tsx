@@ -107,13 +107,9 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const openDeleteModal = () => {
-    setIsDeleteModalOpen(true);
-    setIsDropdownOpen(false);
-  };
-
   const handleDeleteFile = async () => {
     try {
+      setLoadingStates((prev) => ({ ...prev, delete: true }));
       const token = localStorage.getItem(ACCESS_TOKEN_KEY);
       const formData = {
         userId,
@@ -134,11 +130,10 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
         throw new Error("Failed to delete file");
       }
       setIsDeleteModalOpen(false);
-      setIsDeleteModalOpen(false);
-      toast.success("File deleted successfully!");
       await refreshData();
+      toast.success("File deleted successfully!");
     } catch (error) {
-      toast.error("Failed to delete file");
+      toast.error("Failed to delete file, Try again after some time");
       console.error("Error deleting file:", error);
     } finally {
       setLoadingStates((prev) => ({ ...prev, delete: false }));
@@ -199,6 +194,7 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
           {/* Top options button */}
           <div className="absolute top-3 right-3">
             <button
+              ref={buttonRef}
               onClick={toggleDropdown}
               className="p-1.5 bg-white bg-opacity-40 hover:bg-opacity-100 rounded-full transition-colors"
               aria-label="More options"
@@ -207,11 +203,14 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+              <div
+                ref={dropdownRef}
+                className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200"
+              >
                 <ul className="py-1">
                   <li
-                    className="px-4 py-2 flex gap-2 hover:bg-gray-100 cursor-pointer text-sm text-red-600"
-                    onClick={openDeleteModal}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-red-600 flex items-center gap-2"
+                    onClick={() => setIsDeleteModalOpen(true)}
                   >
                     <Trash2Icon className="w-4 h-4" />
                     Delete
@@ -261,8 +260,8 @@ interface DeleteModalProps {
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
   fileName,
+  isLoading,
   onClose,
-  isLoading = false,
   onDelete,
 }) => {
   return (
@@ -270,7 +269,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 className="text-lg font-semibold mb-2">Delete File</h2>
         <p className="mb-4 text-gray-600">
-          Are you sure you want to delete{" "}
+          Are you sure you want to Delete{" "}
           <span className="font-medium">{fileName}</span>? This action cannot be
           undone.
         </p>
@@ -278,11 +277,12 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           <button
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
             onClick={onClose}
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:opacity-50"
             onClick={onDelete}
             disabled={isLoading}
           >
