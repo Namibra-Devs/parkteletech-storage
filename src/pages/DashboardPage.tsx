@@ -193,7 +193,7 @@ const DashboardPage = () => {
                   key={file.id}
                   id={file.id ?? 0}
                   name={file.originalFileName || ""}
-                  fileUrl={file.url}
+                  fileUrl={file.secureUrl}
                   size={parseInt(file.size?.toString() || "0")}
                   refreshFileData={refreshFileData}
                   refreshTrashFiles={refreshTrashFiles}

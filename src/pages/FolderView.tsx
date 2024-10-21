@@ -266,7 +266,7 @@ const FolderView: React.FC = () => {
                 key={file.id}
                 id={file.id}
                 name={file.originalFileName}
-                fileUrl={file.url}
+                fileUrl={file.secureUrl}
                 size={parseInt(file.size)}
                 refreshFileData={refreshFileData}
                 refreshTrashFiles={refreshTrashFiles}
