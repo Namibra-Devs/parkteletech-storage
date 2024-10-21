@@ -92,6 +92,14 @@ const Trash = () => {
               ))}
             </div>
           ) : null}
+
+          {trashFiles.length === 0 && trashFolders.length === 0 ? (
+            <div className="flex items-center justify-center h-96">
+              <p className="text-lg text-gray-500">
+                Your trash is empty. Deleted files and folders will appear here
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
