@@ -42,7 +42,7 @@ const StorageUsage = ({
           isMinimized && "justify-center"
         )}
       >
-        <HardDrive className="size-2 md:size-4 text-blue-600" />
+        <HardDrive className="size-4 text-blue-600" />
         {!isMinimized && <h3 className="text-sm font-medium">Storage Usage</h3>}
       </div>
 
