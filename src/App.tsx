@@ -1,5 +1,5 @@
 import AppRouter from "./routes";
-import AppProvider from "./providers";
+// import AppProvider from "./providers";
 import { ApiProvider } from "./hooks/context/GlobalContext";
 import { checkAndRemoveExpiredTokens } from "./lib/utils";
 
@@ -9,11 +9,9 @@ function App() {
     return null;
   }
   return (
-    <AppProvider>
-      <ApiProvider>
-        <AppRouter />
-      </ApiProvider>
-    </AppProvider>
+    <ApiProvider>
+      <AppRouter />
+    </ApiProvider>
   );
 }
 

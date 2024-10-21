@@ -31,7 +31,7 @@ export function FolderModal({ parentFolderId }: { parentFolderId?: number }) {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/folders`,
+        `https://storage-api.parkteletechafrica.com/api/v1/folders`,
         {
           method: "POST",
           headers: {

@@ -118,7 +118,7 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
       };
 
       const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/files/hard/${id}`,
+        `https://storage-api.parkteletechafrica.com/api/v1/files/hard/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -151,7 +151,7 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
       };
 
       const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/files/restore/${id}`,
+        `https://storage-api.parkteletechafrica.com/api/v1/files/restore/${id}`,
         {
           method: "PUT",
           headers: {

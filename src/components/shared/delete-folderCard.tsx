@@ -78,7 +78,7 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
     setIsDeleting(true);
     try {
       const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/folders/hard-delete/${id}`,
+        `https://storage-api.parkteletechafrica.com/api/v1/folders/hard-delete/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -106,7 +106,7 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
     setIsDropdownOpen(false);
     try {
       const response = await fetch(
-        `https://parkteletech-storage-backend.onrender.com/api/v1/folders/restore/${id}`,
+        `https://storage-api.parkteletechafrica.com/api/v1/folders/restore/${id}`,
         {
           method: "PUT",
           headers: {

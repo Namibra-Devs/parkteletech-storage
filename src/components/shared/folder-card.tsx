@@ -91,8 +91,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
     setIsDropdownOpen(false);
   };
 
-  const baseUrl =
-    "https://parkteletech-storage-backend.onrender.com/api/v1/folders";
+  const baseUrl = "https://storage-api.parkteletechafrica.com/api/v1/folders";
 
   const handleRenameFolder = async (newName: string) => {
     setIsLoading((prev) => ({ ...prev, rename: true }));

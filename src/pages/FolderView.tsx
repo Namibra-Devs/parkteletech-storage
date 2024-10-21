@@ -77,7 +77,7 @@ const FolderView: React.FC = () => {
         });
       } else {
         const response = await fetch(
-          `https://parkteletech-storage-backend.onrender.com/api/v1/folders/${folderId}`,
+          `https://storage-api.parkteletechafrica.com/api/v1/folders/${folderId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -115,7 +115,7 @@ const FolderView: React.FC = () => {
           try {
             const token = localStorage.getItem(ACCESS_TOKEN_KEY);
             const response = await fetch(
-              `https://parkteletech-storage-backend.onrender.com/api/v1/folders/${parentId}`,
+              `https://storage-api.parkteletechafrica.com/api/v1/folders/${parentId}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,

@@ -51,7 +51,7 @@ export default function FileUpload({
 
         xhr.open(
           "POST",
-          "https://parkteletech-storage-backend.onrender.com/api/v1/files/multiple"
+          "https://storage-api.parkteletechafrica.com/api/v1/files/multiple"
         );
         xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         xhr.send(formData);

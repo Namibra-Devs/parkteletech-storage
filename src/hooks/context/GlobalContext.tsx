@@ -93,7 +93,7 @@ interface GlobalContextType {
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-const BASE_URL = "https://parkteletech-storage-backend.onrender.com/api/v1";
+const BASE_URL = "https://storage-api.parkteletechafrica.com/api/v1";
 
 export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -269,22 +269,6 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     refreshData();
   }, [refreshData]);
-
-  // const storageQuota = useCallback(async () => {
-  //   setIsLoading(true);
-  //   setError(null);
-  //   try {
-  //     const quota = await fetchData<StorageQuota>(`/users/${userId}/quota`);
-
-  //     if (quota) {
-  //       return setQuota(quota);
-  //     }
-  //   } catch (err) {
-  //     setError(err instanceof Error ? err.message : "Failed to fetch data");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }, [ userId, fetchData]);
 
   const refreshTrashData = useCallback(async () => {
     refreshTrashFiles();
