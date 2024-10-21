@@ -1,6 +1,6 @@
 import DashboardNav from "@/components/shared/dashboard-nav";
 import { navItems } from "@/constants";
-import { useApi, CustomFile } from "@/hooks/context/GlobalContext";
+import { useApi } from "@/hooks/context/GlobalContext";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
@@ -15,7 +15,7 @@ export default function Sidebar({ className }: SidebarProps) {
   const { isMinimized, toggle } = useSidebar();
   const [status, setStatus] = useState(false);
 
-  const { files } = useApi();
+  const { quota } = useApi();
 
   const handleToggle = () => {
     setStatus(true);
@@ -59,15 +59,34 @@ export default function Sidebar({ className }: SidebarProps) {
       </div>
 
       <div className="absolute bottom-4 w-full">
-        <StorageUsage files={files as CustomFile[]} isMinimized={isMinimized} />
+        <StorageUsage
+          isPassingQuota={quota.quotaDetails.isPassingQuota}
+          quotaLimit={quota.quotaDetails.quotaLimit}
+          quotaUsed={quota.quotaDetails.quotaUsed}
+          quotaRemaining={quota.quotaDetails.quotaRemaining}
+          isMinimized={isMinimized}
+        />
         <p
           className={cn(
             "text-xs text-center text-gray-500 mt-2",
             isMinimized && "hidden"
           )}
         >
-          &copy; {new Date().getFullYear()} Park Teletech
+          &copy; {new Date().getFullYear()} Park Teletech Africa
         </p>
+        <div
+          className={cn(
+            "text-xs text-center text-gray-500 mt-2 items-center flex justify-center gap-2",
+            isMinimized && "hidden"
+          )}
+        >
+          <span>Powered by</span>
+          <img
+            src="./namibra-logo.png"
+            alt="Namibra Logo"
+            className="object-contain w-12"
+          />
+        </div>
       </div>
     </nav>
   );

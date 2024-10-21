@@ -4,7 +4,17 @@ import { useApi } from "@/hooks/context/GlobalContext";
 import { ToastContainer } from "react-toastify";
 
 const Trash = () => {
-  const { trashFiles, trashFolders, refreshData, isLoading } = useApi();
+  const {
+    trashFiles,
+    trashFolders,
+    refreshFileData,
+    refreshFolderData,
+    refreshTrashFolders,
+    refreshTrashFiles,
+    isLoading,
+    refreshTrashData,
+    error,
+  } = useApi();
   console.log({ trashFiles, trashFolders });
   const processedFolders = trashFolders.map((folder) => ({
     ...folder,
@@ -20,6 +30,24 @@ const Trash = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-red-500 text-xl mb-4">
+            Something went wrong, try again after sometime
+          </p>
+          <button
+            onClick={refreshTrashData}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -39,7 +67,9 @@ const Trash = () => {
                     name={folder.name as string}
                     fileCount={folder.fileCount as number}
                     totalSize={folder.totalSize as number}
-                    refreshData={refreshData}
+                    lastModified={folder.updatedAt as string}
+                    refreshFolderData={refreshFolderData}
+                    refreshTrashFolders={refreshTrashFolders}
                   />
                 </div>
               ))}
@@ -55,7 +85,8 @@ const Trash = () => {
                     name={file.originalFileName as string}
                     fileUrl={file.url as string}
                     size={file.size as number}
-                    refreshData={refreshData}
+                    refreshFileData={refreshFileData}
+                    refreshTrashFiles={refreshTrashFiles}
                   />
                 </div>
               ))}

@@ -19,7 +19,8 @@ interface FolderCardProps {
   totalSize?: number;
   isPinned?: boolean;
   isHome?: boolean;
-  refreshData: () => Promise<void>;
+  refreshFolderData: () => Promise<void>;
+  refreshTrashFolders: () => Promise<void>;
 }
 
 const FolderCard: React.FC<FolderCardProps> = ({
@@ -30,7 +31,8 @@ const FolderCard: React.FC<FolderCardProps> = ({
   isPinned,
   totalSize,
   isHome = false,
-  refreshData,
+  refreshFolderData,
+  refreshTrashFolders,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
@@ -106,7 +108,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
       if (!response.ok) {
         throw new Error("Failed to rename folder");
       }
-      await refreshData();
+      await refreshFolderData();
       toast.success("Folder renamed successfully!");
       setIsRenameModalOpen(false);
     } catch (error) {
@@ -130,7 +132,8 @@ const FolderCard: React.FC<FolderCardProps> = ({
         throw new Error("Failed to delete folder");
       }
       setIsDeleteModalOpen(false);
-      await refreshData();
+      await refreshFolderData();
+      await refreshTrashFolders();
       toast.success("Folder deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete folder");
@@ -152,7 +155,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
       if (!response.ok) {
         throw new Error("Failed to pin folder");
       }
-      await refreshData();
+      await refreshFolderData();
       toast.success("Folder pinned successfully!");
     } catch (error) {
       toast.error("Failed to pin folder");
@@ -175,7 +178,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
       if (!response.ok) {
         throw new Error("Failed to unpin folder");
       }
-      await refreshData();
+      await refreshFolderData();
       toast.success("Folder unpinned successfully!");
     } catch (error) {
       toast.error("Failed to unpin folder");

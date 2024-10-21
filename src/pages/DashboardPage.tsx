@@ -8,6 +8,7 @@ import { FolderModal } from "@/components/shared/folder-modal";
 import GridComponent from "@/components/shared/grid";
 import ListComponent from "@/components/shared/list";
 import { useApi } from "@/hooks/context/GlobalContext";
+import ErrorHandler from "@/components/shared/error-handler";
 
 export interface Folder {
   id?: number;
@@ -41,18 +42,20 @@ export interface File {
 }
 
 const DashboardPage = () => {
-  const { folders, files, refreshData, isLoading, error } = useApi();
+  const {
+    folders,
+    files,
+    refreshData,
+    refreshFileData,
+    refreshFolderData,
+    refreshTrashFiles,
+    refreshTrashFolders,
+    isLoading,
+    error,
+  } = useApi();
   const [homeFolders, setHomeFolders] = useState<Folder[]>([]);
   const [homeFiles, setHomeFiles] = useState<File[]>([]);
   const [pinnedFolders, setPinnedFolders] = useState<Folder[]>([]);
-
-  console.log({
-    folders,
-    files,
-    homeFolders,
-    homeFiles,
-    pinnedFolders,
-  });
 
   useEffect(() => {
     // Process files that don't belong to any folder
@@ -97,11 +100,7 @@ const DashboardPage = () => {
   }
 
   if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-red-500">Error: {error}</div>
-      </div>
-    );
+    return <ErrorHandler />;
   }
 
   return (
@@ -135,7 +134,8 @@ const DashboardPage = () => {
                   fileCount={folder.fileCount || 0}
                   lastModified={folder.updatedAt}
                   totalSize={folder.totalSize}
-                  refreshData={refreshData}
+                  refreshFolderData={refreshFolderData}
+                  refreshTrashFolders={refreshTrashFolders}
                   isHome={true}
                   isPinned={folder.isPinned}
                 />
@@ -159,7 +159,8 @@ const DashboardPage = () => {
                     fileCount={folder.fileCount || 0}
                     lastModified={folder.updatedAt}
                     totalSize={folder.totalSize}
-                    refreshData={refreshData}
+                    refreshFolderData={refreshFolderData}
+                    refreshTrashFolders={refreshTrashFolders}
                     isPinned={folder.isPinned}
                     isHome={true}
                   />
@@ -194,7 +195,8 @@ const DashboardPage = () => {
                   name={file.originalFileName || ""}
                   fileUrl={file.url}
                   size={parseInt(file.size?.toString() || "0")}
-                  refreshData={refreshData}
+                  refreshFileData={refreshFileData}
+                  refreshTrashFiles={refreshTrashFiles}
                 />
               ))}
             </div>

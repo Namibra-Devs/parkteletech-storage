@@ -15,7 +15,8 @@ interface FolderCardProps {
   fileCount: number;
   lastModified?: string;
   totalSize?: number;
-  refreshData: () => Promise<void>;
+  refreshFolderData: () => Promise<void>;
+  refreshTrashFolders: () => Promise<void>;
 }
 
 const DeleteFolderCard: React.FC<FolderCardProps> = ({
@@ -24,7 +25,8 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
   fileCount,
   lastModified,
   totalSize,
-  refreshData,
+  refreshFolderData,
+  refreshTrashFolders,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -89,7 +91,8 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
       }
       setIsDeleteModalOpen(false);
       toast.success("Folder deleted successfully!");
-      await refreshData();
+      await refreshFolderData();
+      await refreshTrashFolders();
     } catch (error) {
       toast.error("Failed to delete folder");
       console.error("Error deleting folder:", error);
@@ -114,7 +117,8 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
       if (!response.ok) {
         throw new Error("Failed to restore folder");
       }
-      await refreshData();
+      await refreshFolderData();
+      await refreshTrashFolders();
       toast.success("Folder restored successfully!");
     } catch (error) {
       toast.error("Failed to restore folder");

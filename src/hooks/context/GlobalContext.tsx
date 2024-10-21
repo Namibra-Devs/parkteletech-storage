@@ -22,6 +22,15 @@ interface Folder {
   deletedAt?: null;
 }
 
+export interface StorageQuota {
+  quotaDetails: {
+    isPassingQuota: boolean;
+    quotaLimit: number;
+    quotaUsed: number;
+    quotaRemaining: number;
+  };
+}
+
 export interface FolderProps {
   folders: Folder[];
 }
@@ -74,6 +83,12 @@ interface GlobalContextType {
   setTrashFolderMessage: (message: string) => void;
   trashFileMessage: string;
   setTrashFileMessage: (message: string) => void;
+  refreshFileData: () => Promise<void>;
+  refreshFolderData: () => Promise<void>;
+  refreshTrashData: () => Promise<void>;
+  refreshTrashFolders: () => Promise<void>;
+  refreshTrashFiles: () => Promise<void>;
+  quota: StorageQuota;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -89,6 +104,14 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [trashFolderMessage, setTrashFolderMessage] = useState("");
   const [trashFileMessage, setTrashFileMessage] = useState("");
+  const [quota, setQuota] = useState<StorageQuota>({
+    quotaDetails: {
+      isPassingQuota: false,
+      quotaLimit: 0,
+      quotaUsed: 0,
+      quotaRemaining: 0,
+    },
+  });
 
   const user = JSON.parse(localStorage.getItem(USER_KEY) || "{}");
   const userId = user.id;
@@ -158,6 +181,83 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
       if (trashedFiles) {
         setTrashFiles(trashedFiles.files);
       }
+
+      // Fetch storage quota
+      const quota = await fetchData<StorageQuota>(`/users/${userId}/quota`);
+      if (quota) {
+        setQuota(quota);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId, fetchData]);
+
+  const refreshFileData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch files data
+      const fileData = await fetchData<FileProps>(`/files/${userId}`);
+      if (fileData) {
+        setFiles(fileData.files);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId, fetchData]);
+
+  const refreshFolderData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch folders data
+      const folderData = await fetchData<FolderProps>(
+        `/folders/user/${userId}`
+      );
+      if (folderData) {
+        setFolders(folderData.folders);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId, fetchData]);
+
+  const refreshTrashFolders = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch trash data
+      const trashedFolders = await fetchData<FolderProps>(
+        `/folders/user/${userId}/deleted`
+      );
+      if (trashedFolders) {
+        setTrashFolders(trashedFolders.folders);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId, fetchData]);
+  const refreshTrashFiles = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch trash data
+      const trashedFiles = await fetchData<FileProps>(`/files/soft/${userId}`);
+      if (trashedFiles) {
+        setTrashFiles(trashedFiles.files);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch data");
     } finally {
@@ -169,6 +269,27 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     refreshData();
   }, [refreshData]);
+
+  // const storageQuota = useCallback(async () => {
+  //   setIsLoading(true);
+  //   setError(null);
+  //   try {
+  //     const quota = await fetchData<StorageQuota>(`/users/${userId}/quota`);
+
+  //     if (quota) {
+  //       return setQuota(quota);
+  //     }
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : "Failed to fetch data");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, [ userId, fetchData]);
+
+  const refreshTrashData = useCallback(async () => {
+    refreshTrashFiles();
+    refreshTrashFolders();
+  }, [refreshTrashFiles, refreshTrashFolders]);
 
   const contextValue: GlobalContextType = {
     folders,
@@ -186,6 +307,12 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     setTrashFolderMessage,
     trashFileMessage,
     setTrashFileMessage,
+    refreshFileData,
+    refreshFolderData,
+    refreshTrashData,
+    refreshTrashFolders,
+    refreshTrashFiles,
+    quota,
   };
 
   return (

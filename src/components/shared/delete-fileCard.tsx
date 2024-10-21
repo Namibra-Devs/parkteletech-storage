@@ -19,7 +19,8 @@ interface FileCardProps {
   name: string;
   size?: number;
   fileUrl?: string;
-  refreshData: () => Promise<void>;
+  refreshFileData: () => Promise<void>;
+  refreshTrashFiles: () => Promise<void>;
 }
 
 const DeleteFileCard: React.FC<FileCardProps> = ({
@@ -27,7 +28,8 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
   name,
   size,
   fileUrl,
-  refreshData,
+  refreshFileData,
+  refreshTrashFiles,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -130,7 +132,8 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
         throw new Error("Failed to delete file");
       }
       setIsDeleteModalOpen(false);
-      await refreshData();
+      await refreshFileData();
+      await refreshTrashFiles();
       toast.success("File deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete file, Try again after some time");
@@ -163,7 +166,8 @@ const DeleteFileCard: React.FC<FileCardProps> = ({
         throw new Error("Failed to restore file");
       }
       setIsDeleteModalOpen(false);
-      await refreshData();
+      await refreshFileData();
+      await refreshTrashFiles();
       toast.success("File restored successfully!");
     } catch (error) {
       toast.error("Failed to restore file");

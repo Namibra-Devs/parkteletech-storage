@@ -49,7 +49,12 @@ const FolderView: React.FC = () => {
     { id: number; name: string }[]
   >([]);
 
-  const { refreshData } = useApi();
+  const {
+    refreshFileData,
+    refreshFolderData,
+    refreshTrashFiles,
+    refreshTrashFolders,
+  } = useApi();
 
   const fetchFolderData = useCallback(async () => {
     try {
@@ -157,7 +162,9 @@ const FolderView: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <p className="text-red-500 text-xl mb-4">Error: {error}</p>
+          <p className="text-red-500 text-xl mb-4">
+            Something went wrong, try again after sometime
+          </p>
           <button
             onClick={fetchFolderData}
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
@@ -235,7 +242,8 @@ const FolderView: React.FC = () => {
                     0
                   )}
                   fileCount={folder.files?.length || 0}
-                  refreshData={refreshData}
+                  refreshFolderData={refreshFolderData}
+                  refreshTrashFolders={refreshTrashFolders}
                 />
               ))}
             </div>
@@ -260,7 +268,8 @@ const FolderView: React.FC = () => {
                 name={file.originalFileName}
                 fileUrl={file.url}
                 size={parseInt(file.size)}
-                refreshData={refreshData}
+                refreshFileData={refreshFileData}
+                refreshTrashFiles={refreshTrashFiles}
               />
             ))}
           </div>

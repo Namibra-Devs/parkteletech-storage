@@ -26,7 +26,7 @@ export default function FileUpload({
       const formData = new FormData();
       formData.append("folderId", folderId ? folderId.toString() : "");
       for (let i = 0; i < files.length; i++) {
-        formData.append("file", files[i]);
+        formData.append("files", files[i]);
       }
 
       const token = localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -51,7 +51,7 @@ export default function FileUpload({
 
         xhr.open(
           "POST",
-          "https://parkteletech-storage-backend.onrender.com/api/v1/files"
+          "https://parkteletech-storage-backend.onrender.com/api/v1/files/multiple"
         );
         xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         xhr.send(formData);
