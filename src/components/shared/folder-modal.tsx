@@ -13,7 +13,13 @@ import FolderButton from "./newFolder-button";
 import { Button } from "../ui/button";
 import { ACCESS_TOKEN_KEY } from "@/constants";
 
-export function FolderModal({ parentFolderId }: { parentFolderId?: number }) {
+export function FolderModal({
+  parentFolderId,
+  refreshFolderData,
+}: {
+  parentFolderId?: number;
+  refreshFolderData?: () => Promise<void>;
+}) {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -50,6 +56,9 @@ export function FolderModal({ parentFolderId }: { parentFolderId?: number }) {
       setIsOpen(false);
       toast.success("Folder created successfully");
       await refreshData();
+      if (refreshFolderData) {
+        await refreshFolderData();
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to create folder");

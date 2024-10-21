@@ -193,7 +193,10 @@ const FolderView: React.FC = () => {
               <GridComponent />
             </div>
             <FileUpload folderId={folderId} refreshFileData={fetchFolderData} />
-            <FolderModal parentFolderId={folderId} />
+            <FolderModal
+              parentFolderId={folderId}
+              refreshFolderData={fetchFolderData}
+            />
           </div>
         </div>
 
@@ -244,6 +247,7 @@ const FolderView: React.FC = () => {
                   fileCount={folder.files?.length || 0}
                   refreshFolderData={refreshFolderData}
                   refreshTrashFolders={refreshTrashFolders}
+                  refreshParentFolderData={fetchFolderData}
                 />
               ))}
             </div>
@@ -270,6 +274,7 @@ const FolderView: React.FC = () => {
                 size={parseInt(file.size)}
                 refreshFileData={refreshFileData}
                 refreshTrashFiles={refreshTrashFiles}
+                refreshParentFolderData={fetchFolderData}
               />
             ))}
           </div>

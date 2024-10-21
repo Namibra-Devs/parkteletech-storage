@@ -21,6 +21,7 @@ interface FolderCardProps {
   isHome?: boolean;
   refreshFolderData: () => Promise<void>;
   refreshTrashFolders: () => Promise<void>;
+  refreshParentFolderData?: () => Promise<void>;
 }
 
 const FolderCard: React.FC<FolderCardProps> = ({
@@ -33,6 +34,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
   isHome = false,
   refreshFolderData,
   refreshTrashFolders,
+  refreshParentFolderData,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
@@ -108,6 +110,9 @@ const FolderCard: React.FC<FolderCardProps> = ({
         throw new Error("Failed to rename folder");
       }
       await refreshFolderData();
+      if (refreshParentFolderData) {
+        await refreshParentFolderData();
+      }
       toast.success("Folder renamed successfully!");
       setIsRenameModalOpen(false);
     } catch (error) {
@@ -133,6 +138,9 @@ const FolderCard: React.FC<FolderCardProps> = ({
       setIsDeleteModalOpen(false);
       await refreshFolderData();
       await refreshTrashFolders();
+      if (refreshParentFolderData) {
+        await refreshParentFolderData();
+      }
       toast.success("Folder deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete folder");
