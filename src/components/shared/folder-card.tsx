@@ -126,7 +126,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
   const handleDeleteFolder = async () => {
     setIsLoading((prev) => ({ ...prev, delete: true }));
     try {
-      const response = await fetch(`/soft-delete/${id}`, {
+      const response = await fetch(`${baseUrl}/soft-delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
