@@ -154,6 +154,7 @@ const DashboardPage = () => {
               {homeFolders.map((folder: Folder) => (
                 <div key={folder.id}>
                   <FolderCard
+                    key={folder.id}
                     id={folder.id ?? 0}
                     name={folder.name || ""}
                     fileCount={folder.fileCount || 0}

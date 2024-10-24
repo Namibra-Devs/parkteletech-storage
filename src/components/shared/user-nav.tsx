@@ -12,7 +12,12 @@ import {
 } from "../ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { USER_KEY,ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, TOKEN_EXPIRATION_KEY } from "@/constants";
+import {
+  USER_KEY,
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  TOKEN_EXPIRATION_KEY,
+} from "@/constants";
 
 type User = {
   email: string;
@@ -38,6 +43,7 @@ export default function UserNav() {
     setTimeout(() => {
       navigate("/login");
     }, 2000);
+    window.location.reload();
   };
   return (
     <DropdownMenu>
