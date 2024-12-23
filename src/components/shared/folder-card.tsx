@@ -93,7 +93,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
     setIsDropdownOpen(false);
   };
 
-  const baseUrl = "https://storage-api.parkteletechafrica.com/api/v1/folders";
+  const baseUrl = "https://parkteletech-storage-backend-gzba.onrender.com/api/v1/folders";
 
   const handleRenameFolder = async (newName: string) => {
     setIsLoading((prev) => ({ ...prev, rename: true }));
@@ -126,7 +126,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
   const handleDeleteFolder = async () => {
     setIsLoading((prev) => ({ ...prev, delete: true }));
     try {
-      const response = await fetch(`/soft-delete/${id}`, {
+      const response = await fetch(`https://parkteletech-storage-backend-gzba.onrender.com/api/v1/folders/soft-delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -218,6 +218,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
         </div>
         <div className="relative ml-2" ref={dropdownRef}>
           <button
+          title="More"
             onClick={toggleDropdown}
             className="p-1 hover:bg-gray-100 rounded-full"
           >

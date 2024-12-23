@@ -114,7 +114,7 @@ const FileCard: React.FC<FileCardProps> = ({
       const formData = { userId };
 
       const response = await fetch(
-        `https://storage-api.parkteletechafrica.com/api/v1/files/soft/${id}`,
+        `https://parkteletech-storage-backend-gzba.onrender.com/api/v1/files/soft/${id}`,
         {
           method: "DELETE",
           headers: {

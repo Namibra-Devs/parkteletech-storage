@@ -32,7 +32,7 @@ export function UpdateFolderModal({ folderId }: { folderId: number }) {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://storage-api.parkteletechafrica.com/api/v1/folders/${folderId}`,
+        `https://parkteletech-storage-backend-gzba.onrender.com/api/v1/folders/${folderId}`,
         {
           method: "POST",
           headers: {

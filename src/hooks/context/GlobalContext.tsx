@@ -93,7 +93,7 @@ interface GlobalContextType {
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-const BASE_URL = "https://storage-api.parkteletechafrica.com/api/v1";
+const BASE_URL = "https://parkteletech-storage-backend-gzba.onrender.com/api/v1";
 
 export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [folders, setFolders] = useState<Folder[]>([]);

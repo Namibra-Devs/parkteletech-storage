@@ -78,7 +78,7 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
     setIsDeleting(true);
     try {
       const response = await fetch(
-        `https://storage-api.parkteletechafrica.com/api/v1/folders/hard-delete/${id}`,
+        `https://parkteletech-storage-backend-gzba.onrender.com/api/v1/folders/hard-delete/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -106,7 +106,7 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
     setIsDropdownOpen(false);
     try {
       const response = await fetch(
-        `https://storage-api.parkteletechafrica.com/api/v1/folders/restore/${id}`,
+        `https://parkteletech-storage-backend-gzba.onrender.com/api/v1/folders/restore/${id}`,
         {
           method: "PUT",
           headers: {
@@ -150,6 +150,7 @@ const DeleteFolderCard: React.FC<FolderCardProps> = ({
         </div>
         <div className="relative ml-2" ref={dropdownRef}>
           <button
+          title="More"
             onClick={toggleDropdown}
             className="p-1 hover:bg-gray-100 rounded-full"
             disabled={isRestoring}

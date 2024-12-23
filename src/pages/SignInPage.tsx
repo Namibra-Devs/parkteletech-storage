@@ -21,7 +21,7 @@ interface UserResponse {
   data: Record<string, unknown>;
 }
 
-const AUTH_API_BASE = "https://parkteletech-auth.onrender.com/api/v1/auth";
+const AUTH_API_BASE = "https://parkteletech-auth-5kfm.onrender.com/api/v1/auth";
 
 const SignInPage = () => {
   const navigate = useNavigate();
