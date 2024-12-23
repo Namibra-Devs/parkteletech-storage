@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { Eye, EyeOff } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 import {
   ACCESS_TOKEN_KEY,
@@ -30,6 +31,8 @@ const SignInPage = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const setTokensWithExpiration = (
     accessToken: string,
     refreshToken: string,
@@ -139,6 +142,10 @@ const SignInPage = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="bg-[#F7F7F7] min-h-screen">
       <ToastContainer position="top-center" />
@@ -170,16 +177,29 @@ const SignInPage = () => {
                 disabled={loading}
               />
 
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                className="border-2 border-gray-300 h-10 rounded-md px-4 focus:border-blue-500 focus:outline-none"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                disabled={loading}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  className="border-2 border-gray-300 h-10 rounded-md px-4 w-full focus:border-blue-500 focus:outline-none pr-12"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? (
+                    <EyeOff size={20} className="text-gray-500" />
+                  ) : (
+                    <Eye size={20} className="text-gray-500" />
+                  )}
+                </button>
+              </div>
 
               <button
                 type="submit"
